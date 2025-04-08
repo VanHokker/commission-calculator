@@ -17,50 +17,19 @@ export default function CommissionCalculator() {
   const [isExcludedSOI, setIsExcludedSOI] = useState(false);
   const [withinTwoYearsZillow, setWithinTwoYearsZillow] = useState(true);
   const [firstOrSecondZillowTransaction, setFirstOrSecondZillowTransaction] = useState(true);
-  const [within2Years, setWithin2Years] = useState(false);
-  const [within18Months, setWithin18Months] = useState(false);
-  const [isAgentReferred, setIsAgentReferred] = useState(false);
-  const [isSellerLead, setIsSellerLead] = useState(false);
-  const [isBuyerLead, setIsBuyerLead] = useState(false);
-  const [withinUpnestSellerTime, setWithinUpnestSellerTime] = useState(false);
-  const [withinUpnestBuyerTime, setWithinUpnestBuyerTime] = useState(false);
 
   const referralFees = {
     "SOI": 0,
     "Zillow.com": (price) => price < 150000 ? 0.3 : price <= 250000 ? 0.35 : 0.4,
-    "OpCity": (price) => price > 150000 ? 0.35 : 0.3,
-    "Movoto.com": (price) => within2Years ? 0.175 : 0,
+    "OpCity": 0.25,
+    "Movoto.com": 0.175,
     "Listing.com": 0,
     "EZHomesearch.com": 0,
     "EZ Referral": 0.25,
     "MarketVIP": 0.3,
     "OpenDoor (LWOD)": 0.35,
-    "Personal Deal": 0,
     "Other": () => customReferralFee ? customReferralFee / 100 : 0,
-    "Agent Pronto": () => within2Years ? 0.3 : 0,
-    "Better Mortgage": 0.3,
-    "Dave Ramsey": 0.3,
-    "Estately": () => within18Months ? 0.3 : 0,
-    "Fast Expert": 0.25,
-    "Glenn Beck": 0.25,
-    "Homelight": () => within2Years ? 0.25 : 0,
-    "Ideal Agent": (price) => {
-      if (parseFloat(commissionInput) > 2) alert("Commission must be 2% for Ideal Agent");
-      if (price < 250000) return 0.25;
-      if (price < 500000) return 0.3;
-      return 0.35;
-    },
-    "My Agent Finder": (price) => price < 150000 ? 0.25 : 0.35,
-    "Agentology": (price) => price < 150000 ? 0.25 : 0.35,
-    "OpenDoor Agent Connect": () => 0.0125,
-    "Redfin.com": () => within18Months ? 0.3 : 0,
-    "Referral Exchange / Agent Machine": (price) => isAgentReferred ? 0.35 : price > 150000 ? 0.3 : 0.25,
-    "Sold.com": 0,
-    "Upnest.com": () => {
-      if (isSellerLead && withinUpnestSellerTime) return 0.3;
-      if (isBuyerLead && withinUpnestBuyerTime) return 0.3;
-      return 0;
-    }
+    "Personal Deal": 0,
   };
 
   const soiSplits = {
@@ -100,11 +69,13 @@ export default function CommissionCalculator() {
     }
 
     let referralFeeRate;
-    const referralLogic = referralFees[leadSource];
-    if (typeof referralLogic === "function") {
-      referralFeeRate = referralLogic(contractPrice);
+    if (leadSource === "Zillow.com") {
+      const qualifyForZillowFee = withinTwoYearsZillow && firstOrSecondZillowTransaction;
+      referralFeeRate = qualifyForZillowFee ? referralFees["Zillow.com"](contractPrice) : referralFees["SOI"];
     } else {
-      referralFeeRate = referralLogic || 0;
+      referralFeeRate = typeof referralFees[leadSource] === "function"
+        ? referralFees[leadSource](contractPrice)
+        : referralFees[leadSource];
     }
 
     const totalCommission = parseCommission();
@@ -121,6 +92,7 @@ export default function CommissionCalculator() {
     }
 
     const splitLabel = `${Math.round(agentSplit * 100)}/${Math.round((1 - agentSplit) * 100)}`;
+
     const agentGross = afterReferral * agentSplit;
     const kwCommission = hasCapped ? 0 : Math.min(agentGross * 0.3, kwCapRemaining);
     const kwRoyalty = hasCapped ? 0 : Math.min(agentGross * 0.06, kwRoyaltyRemaining);
@@ -304,39 +276,38 @@ export default function CommissionCalculator() {
           Calculate
         </button>
 
-        {/* Show result */}
+        {/* Result Output */}
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
             <h2 className="text-xl font-bold text-blue-900 mb-4">Your Commission Summary</h2>
             <p><strong>Total Commission:</strong> {currencyFormatter.format(result.totalCommission)}</p>
             <p><strong>Referral Fee (%):</strong> {(result.referralFeeRate * 100).toFixed(1)}%</p>
             <p><strong>After Referral:</strong> {currencyFormatter.format(result.afterReferral)}</p>
-            <p><strong>Team/Agent Split:</strong> {result.splitLabel}</p>
+            <p><strong>Team/Agent Split:</strong> {result.splitLabel} (You: {Math.round(result.agentGross / result.afterReferral * 100)}%)</p>
             <p><strong>Agent Gross:</strong> {currencyFormatter.format(result.agentGross)}</p>
             <p><strong>KW Commission:</strong> {currencyFormatter.format(result.kwCommission)}</p>
             <p><strong>KW Royalty:</strong> {currencyFormatter.format(result.kwRoyalty)}</p>
             <p className="text-lg font-bold text-green-700 mt-4">Net Income: {currencyFormatter.format(result.netIncome)}</p>
 
-            {showTaxPlan && (
-              <div className="mt-4">
-                <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
-                  <input
-                    type="checkbox"
-                    checked={includeTaxPlanning}
-                    onChange={(e) => setIncludeTaxPlanning(e.target.checked)}
-                  />
-                  Plan for income tax?
-                </label>
-                {includeTaxPlanning && (
-                  <p className="mt-2 text-blue-600 font-semibold">
-                    Suggested Tax Set-Aside (20%): {currencyFormatter.format(result.netIncome * 0.2)}
-                  </p>
-                )}
-              </div>
-            )}
+            <div className="mt-4">
+              <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
+                <input
+                  type="checkbox"
+                  checked={includeTaxPlanning}
+                  onChange={(e) => setIncludeTaxPlanning(e.target.checked)}
+                />
+                Plan for income tax?
+              </label>
+              {includeTaxPlanning && (
+                <p className="mt-2 text-blue-600 font-semibold">
+                  Suggested Tax Set-Aside (20%): {currencyFormatter.format(result.netIncome * 0.2)}
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>
     </div>
   );
 }
+
