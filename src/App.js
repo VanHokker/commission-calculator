@@ -10,6 +10,8 @@ export default function CommissionCalculator() {
   const [hasCapped, setHasCapped] = useState(null);
   const [kwCapRemaining, setKwCapRemaining] = useState(5000);
   const [kwRoyaltyRemaining, setKwRoyaltyRemaining] = useState(3000);
+  const [kwCapInput, setKwCapInput] = useState("$5,000");
+  const [kwRoyaltyInput, setKwRoyaltyInput] = useState("$3,000");
   const [result, setResult] = useState(null);
   const [priceInput, setPriceInput] = useState("");
   const [showTaxPlan, setShowTaxPlan] = useState(false);
@@ -97,7 +99,7 @@ export default function CommissionCalculator() {
       return;
     }
     if (!yearsWithCompany) {
-      setValidationError("Please select how long you have been with Chucktown Homes");
+      setValidationError("Please select how long you have been with Chucktown Homes.");
       return;
     }
     if (hasCapped === null) {
@@ -170,11 +172,25 @@ export default function CommissionCalculator() {
     );
   };
 
+  const handleKwCapChange = (e) => {
+    const raw = e.target.value.replace(/[^\d.]/g, "");
+    const value = Number(raw);
+    setKwCapRemaining(value);
+    setKwCapInput(currencyFormatter.format(value));
+  };
+
+  const handleKwRoyaltyChange = (e) => {
+    const raw = e.target.value.replace(/[^\d.]/g, "");
+    const value = Number(raw);
+    setKwRoyaltyRemaining(value);
+    setKwRoyaltyInput(currencyFormatter.format(value));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl p-8 space-y-8">
         <h1 className="text-4xl font-extrabold text-blue-900 text-center">Commission Calculator</h1>
-        <p className="text-center text-gray-500">The following calculation is simply an estimation. Please, contact your Team Leader for confirmation of the calculation or if you have questions about how CTH splits work.</p>
+        <p className="text-center text-gray-500">The following calculation is simply an estimation. Please contact your Team Leader to confirm results.</p>
 
         {validationError && (
           <div className="bg-red-100 text-red-700 border border-red-300 rounded-lg px-4 py-3 text-sm">
@@ -183,6 +199,7 @@ export default function CommissionCalculator() {
         )}
 
         <div className="grid md:grid-cols-2 gap-8">
+          {/* Left Column */}
           <div className="space-y-6">
             <div>
               <label className="block font-medium text-blue-900 mb-1">Office Location</label>
@@ -201,20 +218,18 @@ export default function CommissionCalculator() {
                 value={priceInput}
                 onChange={handlePriceChange}
                 onBlur={handlePriceBlur}
-                onKeyDown={(e) => handleEnterKey(e, 1, handlePriceBlur)}
                 className="w-full p-3 border rounded-xl shadow-sm"
                 placeholder="$0.00"
               />
             </div>
 
             <div>
-              <label className="block font-medium text-blue-900 mb-1">Commission (Percent or Flat Fee)</label>
+              <label className="block font-medium text-blue-900 mb-1">Commission</label>
               <input
                 type="text"
                 value={commissionInput}
                 onChange={(e) => setCommissionInput(e.target.value)}
                 onBlur={formatCommissionInput}
-                onKeyDown={(e) => handleEnterKey(e, 2, formatCommissionInput)}
                 className="w-full p-3 border rounded-xl shadow-sm"
                 placeholder="3% or $9000"
               />
@@ -263,6 +278,7 @@ export default function CommissionCalculator() {
             )}
           </div>
 
+          {/* Right Column */}
           <div className="space-y-6">
             <div>
               <label className="block font-medium text-blue-900 mb-1">Years with Chucktown Homes</label>
@@ -295,11 +311,21 @@ export default function CommissionCalculator() {
               <>
                 <div>
                   <label className="block font-medium text-blue-900 mb-1">KW Cap Remaining</label>
-                  <input type="number" value={kwCapRemaining} onChange={(e) => setKwCapRemaining(Number(e.target.value))} className="w-full p-3 border rounded-xl shadow-sm" />
+                  <input
+                    type="text"
+                    value={kwCapInput}
+                    onChange={handleKwCapChange}
+                    className="w-full p-3 border rounded-xl shadow-sm"
+                  />
                 </div>
                 <div>
                   <label className="block font-medium text-blue-900 mb-1">KW Royalty Remaining</label>
-                  <input type="number" value={kwRoyaltyRemaining} onChange={(e) => setKwRoyaltyRemaining(Number(e.target.value))} className="w-full p-3 border rounded-xl shadow-sm" />
+                  <input
+                    type="text"
+                    value={kwRoyaltyInput}
+                    onChange={handleKwRoyaltyChange}
+                    className="w-full p-3 border rounded-xl shadow-sm"
+                  />
                 </div>
               </>
             )}
