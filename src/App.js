@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function CommissionCalculator() {
   const [location, setLocation] = useState("");
@@ -19,6 +19,22 @@ export default function CommissionCalculator() {
   const [firstOrSecondZillowTransaction, setFirstOrSecondZillowTransaction] = useState(true);
 
   const inputRefs = useRef([]);
+
+  const focusAndSelect = (input) => {
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  };
+
+  const handleEnterKey = (e, index, callback) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      callback?.();
+      const nextInput = inputRefs.current[index + 1];
+      focusAndSelect(nextInput);
+    }
+  };
 
   const referralFees = {
     "SOI": 0,
@@ -60,17 +76,6 @@ export default function CommissionCalculator() {
         setCommissionInput(num + "%");
       } else {
         setCommissionInput("$" + num.toLocaleString());
-      }
-    }
-  };
-
-  const handleEnterKey = (e, index, callback) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      callback?.();
-      const nextInput = inputRefs.current[index + 1];
-      if (nextInput) {
-        nextInput.focus();
       }
     }
   };
