@@ -8,8 +8,8 @@ export default function CommissionCalculator() {
   const [customReferralFee, setCustomReferralFee] = useState(0);
   const [yearsWithCompany, setYearsWithCompany] = useState("");
   const [hasCapped, setHasCapped] = useState(null);
-  const [kwCapRemaining, setKwCapRemaining] = useState(5000);
-  const [kwRoyaltyRemaining, setKwRoyaltyRemaining] = useState(3000);
+  const [kwCapRemaining, setKwCapRemaining] = useState($5000);
+  const [kwRoyaltyRemaining, setKwRoyaltyRemaining] = useState($3000);
   const [result, setResult] = useState(null);
   const [priceInput, setPriceInput] = useState("");
   const [showTaxPlan, setShowTaxPlan] = useState(false);
@@ -97,11 +97,11 @@ export default function CommissionCalculator() {
       return;
     }
     if (!yearsWithCompany) {
-      setValidationError("Please select your years with the company.");
+      setValidationError("Please select how long you have been with Chucktown Homes");
       return;
     }
     if (hasCapped === null) {
-      setValidationError("Please indicate if you have capped with KW.");
+      setValidationError("Please indicate if you have capped with KW for the year.");
       return;
     }
     if (leadSource === "Other" && (!customReferralFee || customReferralFee <= 0)) {
@@ -174,7 +174,7 @@ export default function CommissionCalculator() {
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl p-8 space-y-8">
         <h1 className="text-4xl font-extrabold text-blue-900 text-center">Commission Calculator</h1>
-        <p className="text-center text-gray-500">Estimate your take-home pay from any deal. Numbers are for reference only.</p>
+        <p className="text-center text-gray-500">The following calculation is simply an estimation. Please, contact your Team Leader for confirmation of the calculation or if you have questions about how CTH splits work.</p>
 
         {validationError && (
           <div className="bg-red-100 text-red-700 border border-red-300 rounded-lg px-4 py-3 text-sm">
