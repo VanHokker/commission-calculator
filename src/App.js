@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 export default function CommissionCalculator() {
   const [location, setLocation] = useState("");
@@ -110,7 +110,6 @@ export default function CommissionCalculator() {
     }
 
     const splitLabel = `${Math.round(agentSplit * 100)}/${Math.round((1 - agentSplit) * 100)}`;
-
     const agentGross = afterReferral * agentSplit;
     const kwCommission = hasCapped ? 0 : Math.min(agentGross * 0.3, kwCapRemaining);
     const kwRoyalty = hasCapped ? 0 : Math.min(agentGross * 0.06, kwRoyaltyRemaining);
@@ -156,9 +155,71 @@ export default function CommissionCalculator() {
 
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-6">
-            {/* ... Existing fields ... */}
+            {/* Office Location */}
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Office Location</label>
+              <select
+                ref={el => inputRefs.current[0] = el}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                onKeyDown={(e) => handleEnterKey(e, 0)}
+                className="w-full p-3 border rounded-xl shadow-sm"
+              >
+                <option value="">Choose Office</option>
+                {["Charleston", "Columbia", "Charlotte", "Greenville", "Savannah", "Jacksonville", "Atlanta"].map((city) => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+            </div>
 
-            {/* Conditionally show exclusion checkbox */}
+            {/* Contract Price */}
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
+              <input
+                ref={el => inputRefs.current[1] = el}
+                type="text"
+                value={priceInput}
+                onChange={handlePriceChange}
+                onBlur={handlePriceBlur}
+                onKeyDown={(e) => handleEnterKey(e, 1, handlePriceBlur)}
+                className="w-full p-3 border rounded-xl shadow-sm"
+                placeholder="$0.00"
+              />
+            </div>
+
+            {/* Commission */}
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Commission (Percent or Flat Fee)</label>
+              <input
+                ref={el => inputRefs.current[2] = el}
+                type="text"
+                value={commissionInput}
+                onChange={(e) => setCommissionInput(e.target.value)}
+                onBlur={formatCommissionInput}
+                onKeyDown={(e) => handleEnterKey(e, 2, formatCommissionInput)}
+                className="w-full p-3 border rounded-xl shadow-sm"
+                placeholder="3% or $9000"
+              />
+            </div>
+
+            {/* Lead Source */}
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Lead Source</label>
+              <select
+                ref={el => inputRefs.current[3] = el}
+                value={leadSource}
+                onChange={(e) => setLeadSource(e.target.value)}
+                onKeyDown={(e) => handleEnterKey(e, 3)}
+                className="w-full p-3 border rounded-xl shadow-sm"
+              >
+                <option value="">Choose Lead Source</option>
+                {Object.keys(referralFees).map((source) => (
+                  <option key={source} value={source}>{source}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Conditional: Exclusion List */}
             {leadSource === "SOI" && yearsWithCompany === "1" && (
               <label className="inline-flex items-center text-blue-900 font-medium text-sm">
                 <input
@@ -171,7 +232,7 @@ export default function CommissionCalculator() {
               </label>
             )}
 
-            {/* Zillow flags */}
+            {/* Conditional: Zillow Flags */}
             {leadSource === "Zillow.com" && (
               <>
                 <label className="inline-flex items-center text-blue-900 font-medium text-sm">
@@ -195,12 +256,12 @@ export default function CommissionCalculator() {
               </>
             )}
 
-            {/* Custom referral fee if "Other" is selected */}
+            {/* Conditional: Custom Referral Fee */}
             {leadSource === "Other" && (
               <div>
                 <label className="block font-medium text-blue-900 mb-1">Custom Referral Fee %</label>
                 <input
-                  ref={(el) => (inputRefs.current[4] = el)}
+                  ref={el => inputRefs.current[4] = el}
                   type="number"
                   value={customReferralFee}
                   onChange={(e) => setCustomReferralFee(Number(e.target.value))}
@@ -209,14 +270,64 @@ export default function CommissionCalculator() {
                 />
               </div>
             )}
+          </div>
 
-            {/* KW Cap Remaining fields if agent hasn't capped */}
+          {/* Second Column */}
+          <div className="space-y-6">
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Years with Chucktown Homes</label>
+              <select
+                ref={el => inputRefs.current[5] = el}
+                value={yearsWithCompany}
+                onChange={(e) => setYearsWithCompany(e.target.value)}
+                onKeyDown={(e) => handleEnterKey(e, 5)}
+                className="w-full p-3 border rounded-xl shadow-sm"
+              >
+                <option value="">Select tenure</option>
+                <option value="1">This is my 1st year</option>
+                <option value="2">This is my 2nd year</option>
+                <option value="3">This is my 3rd year</option>
+                <option value="4">This is my 4th year</option>
+                <option value="5">This is my 5th year</option>
+                <option value="6">I have been with CTH for more than 5 years</option>
+              </select>
+            </div>
+
+            {/* KW Cap */}
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Have you capped with KW this year?</label>
+              <div className="flex gap-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="cap"
+                    value="yes"
+                    checked={hasCapped === true}
+                    onChange={() => setHasCapped(true)}
+                    className="mr-2"
+                  />
+                  Yes
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="cap"
+                    value="no"
+                    checked={hasCapped === false}
+                    onChange={() => setHasCapped(false)}
+                    className="mr-2"
+                  />
+                  No
+                </label>
+              </div>
+            </div>
+
             {hasCapped === false && (
               <>
                 <div>
                   <label className="block font-medium text-blue-900 mb-1">KW Cap Remaining</label>
                   <input
-                    ref={(el) => (inputRefs.current[6] = el)}
+                    ref={el => inputRefs.current[6] = el}
                     type="number"
                     value={kwCapRemaining}
                     onChange={(e) => setKwCapRemaining(Number(e.target.value))}
@@ -227,7 +338,7 @@ export default function CommissionCalculator() {
                 <div>
                   <label className="block font-medium text-blue-900 mb-1">KW Royalty Remaining</label>
                   <input
-                    ref={(el) => (inputRefs.current[7] = el)}
+                    ref={el => inputRefs.current[7] = el}
                     type="number"
                     value={kwRoyaltyRemaining}
                     onChange={(e) => setKwRoyaltyRemaining(Number(e.target.value))}
@@ -240,6 +351,7 @@ export default function CommissionCalculator() {
           </div>
         </div>
 
+        {/* Calculate Button */}
         <button
           onClick={handleCalculate}
           className="w-full bg-blue-900 text-white font-semibold text-lg py-3 rounded-xl hover:bg-blue-800 transition-all"
@@ -247,13 +359,14 @@ export default function CommissionCalculator() {
           Calculate
         </button>
 
+        {/* Results */}
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
             <h2 className="text-xl font-bold text-blue-900 mb-4">Your Commission Summary</h2>
             <p><strong>Total Commission:</strong> {currencyFormatter.format(result.totalCommission)}</p>
             <p><strong>Referral Fee (%):</strong> {(result.referralFeeRate * 100).toFixed(1)}%</p>
             <p><strong>After Referral:</strong> {currencyFormatter.format(result.afterReferral)}</p>
-            <p><strong>Team/Agent Split:</strong> {result.splitLabel} (You: {Math.round(result.agentGross / result.afterReferral * 100)}%)</p>
+            <p><strong>Team/Agent Split:</strong> {result.splitLabel}</p>
             <p><strong>Agent Gross:</strong> {currencyFormatter.format(result.agentGross)}</p>
             <p><strong>KW Commission:</strong> {currencyFormatter.format(result.kwCommission)}</p>
             <p><strong>KW Royalty:</strong> {currencyFormatter.format(result.kwRoyalty)}</p>
