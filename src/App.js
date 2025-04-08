@@ -26,6 +26,7 @@ export default function CommissionCalculator() {
   const [isExcludedSOI, setIsExcludedSOI] = useState(false);
   const [withinTwoYearsZillow, setWithinTwoYearsZillow] = useState(true);
   const [firstOrSecondZillowTransaction, setFirstOrSecondZillowTransaction] = useState(true);
+  const [missingFields, setMissingFields] = useState([]);
 
   const referralFees = {
     "SOI": 0,
@@ -72,7 +73,14 @@ export default function CommissionCalculator() {
   };
 
   const handleCalculate = () => {
-    if (!contractPrice || contractPrice <= 0 || !leadSource || !yearsWithCompany || hasCapped === null) {
+    const missing = [];
+    if (!contractPrice || contractPrice <= 0) missing.push("Contract Price");
+    if (!leadSource) missing.push("Lead Source");
+    if (!yearsWithCompany) missing.push("Years with Company");
+    if (hasCapped === null) missing.push("KW Cap Status");
+
+    if (missing.length > 0) {
+      setMissingFields(missing);
       setResult({
         totalCommission: 0,
         referralFeeRate: 0,
@@ -84,6 +92,8 @@ export default function CommissionCalculator() {
         splitLabel: "0/0",
       });
       return;
+    } else {
+      setMissingFields([]);
     }
 
     let referralFeeRate;
@@ -294,7 +304,18 @@ export default function CommissionCalculator() {
           Calculate
         </button>
 
-        {/* Result Output */}       
+        {/* Result Output */}
+        {missingFields.length > 0 && (
+          <div className="bg-red-100 border border-red-300 text-red-800 p-4 rounded-xl">
+            <p className="font-semibold">Please complete the following fields:</p>
+            <ul className="list-disc list-inside">
+              {missingFields.map((field, index) => (
+                <li key={index}>{field}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
             <h2 className="text-xl font-bold text-blue-900 mb-4">Your Commission Summary</h2>
