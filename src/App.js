@@ -8,8 +8,8 @@ export default function CommissionCalculator() {
   const [customReferralFee, setCustomReferralFee] = useState(0);
   const [yearsWithCompany, setYearsWithCompany] = useState("");
   const [hasCapped, setHasCapped] = useState(null);
-  const [kwCapRemaining, setKwCapRemaining] = useState($5000);
-  const [kwRoyaltyRemaining, setKwRoyaltyRemaining] = useState($3000);
+  const [kwCapRemaining, setKwCapRemaining] = useState(5000);
+  const [kwRoyaltyRemaining, setKwRoyaltyRemaining] = useState(3000);
   const [result, setResult] = useState(null);
   const [priceInput, setPriceInput] = useState("");
   const [showTaxPlan, setShowTaxPlan] = useState(false);
