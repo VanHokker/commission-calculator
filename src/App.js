@@ -10,8 +10,6 @@ export default function CommissionCalculator() {
   const [hasCapped, setHasCapped] = useState(null);
   const [kwCapRemaining, setKwCapRemaining] = useState(5000);
   const [kwRoyaltyRemaining, setKwRoyaltyRemaining] = useState(3000);
-  const [kwCapInput, setKwCapInput] = useState("$5,000");
-  const [kwRoyaltyInput, setKwRoyaltyInput] = useState("$3,000");
   const [result, setResult] = useState(null);
   const [priceInput, setPriceInput] = useState("");
   const [showTaxPlan, setShowTaxPlan] = useState(false);
@@ -83,6 +81,25 @@ export default function CommissionCalculator() {
     }
   };
 
+  const currencyFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+
+  const handlePriceChange = (e) => {
+    const raw = e.target.value.replace(/[^\d.]/g, "");
+    setContractPrice(Number(raw));
+    setPriceInput(e.target.value);
+  };
+
+  const handlePriceBlur = () => {
+    setPriceInput(
+      isNaN(contractPrice)
+        ? ""
+        : currencyFormatter.format(contractPrice)
+    );
+  };
+
   const handleCalculate = () => {
     setValidationError("");
 
@@ -99,7 +116,7 @@ export default function CommissionCalculator() {
       return;
     }
     if (!yearsWithCompany) {
-      setValidationError("Please select how long you have been with Chucktown Homes.");
+      setValidationError("Please select how long you have been with Chucktown Homes");
       return;
     }
     if (hasCapped === null) {
@@ -153,44 +170,11 @@ export default function CommissionCalculator() {
     setShowTaxPlan(true);
   };
 
-  const currencyFormatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  });
-
-  const handlePriceChange = (e) => {
-    const raw = e.target.value.replace(/[^\d.]/g, "");
-    setContractPrice(Number(raw));
-    setPriceInput(e.target.value);
-  };
-
-  const handlePriceBlur = () => {
-    setPriceInput(
-      isNaN(contractPrice)
-        ? ""
-        : currencyFormatter.format(contractPrice)
-    );
-  };
-
-  const handleKwCapChange = (e) => {
-    const raw = e.target.value.replace(/[^\d.]/g, "");
-    const value = Number(raw);
-    setKwCapRemaining(value);
-    setKwCapInput(currencyFormatter.format(value));
-  };
-
-  const handleKwRoyaltyChange = (e) => {
-    const raw = e.target.value.replace(/[^\d.]/g, "");
-    const value = Number(raw);
-    setKwRoyaltyRemaining(value);
-    setKwRoyaltyInput(currencyFormatter.format(value));
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl p-8 space-y-8">
         <h1 className="text-4xl font-extrabold text-blue-900 text-center">Commission Calculator</h1>
-        <p className="text-center text-gray-500">The following calculation is simply an estimation. Please contact your Team Leader to confirm results.</p>
+        <p className="text-center text-gray-500">The following calculation is simply an estimation. Please, contact your Team Leader for confirmation of the calculation or if you have questions about how CTH splits work.</p>
 
         {validationError && (
           <div className="bg-red-100 text-red-700 border border-red-300 rounded-lg px-4 py-3 text-sm">
