@@ -1,14 +1,13 @@
-// Complete CommissionCalculator with full input form and logic
 import { useState } from "react";
 
 export default function CommissionCalculator() {
   const [location, setLocation] = useState("");
   const [contractPrice, setContractPrice] = useState(0);
   const [commissionInput, setCommissionInput] = useState("3%");
-  const [leadSource, setLeadSource] = useState("SOI");
+  const [leadSource, setLeadSource] = useState("");
   const [customReferralFee, setCustomReferralFee] = useState(0);
-  const [yearsWithCompany, setYearsWithCompany] = useState(1);
-  const [hasCapped, setHasCapped] = useState(true);
+  const [yearsWithCompany, setYearsWithCompany] = useState("");
+  const [hasCapped, setHasCapped] = useState(null);
   const [kwCapRemaining, setKwCapRemaining] = useState(5000);
   const [kwRoyaltyRemaining, setKwRoyaltyRemaining] = useState(3000);
   const [result, setResult] = useState(null);
@@ -34,12 +33,12 @@ export default function CommissionCalculator() {
   };
 
   const soiSplits = {
-    1: 0.5,
-    2: 0.6,
-    3: 0.6,
-    4: 0.65,
-    5: 0.65,
-    6: 0.7,
+    "1": 0.5,
+    "2": 0.6,
+    "3": 0.6,
+    "4": 0.65,
+    "5": 0.65,
+    "6": 0.7,
   };
 
   const parseCommission = () => {
@@ -83,8 +82,11 @@ export default function CommissionCalculator() {
     const afterReferral = totalCommission * (1 - referralFeeRate);
 
     let agentSplit = 0.5;
-    if (leadSource === "SOI" || (leadSource === "Zillow.com" && !(withinTwoYearsZillow && firstOrSecondZillowTransaction))) {
-      agentSplit = isExcludedSOI ? 0.85 : soiSplits[Math.min(yearsWithCompany, 6)];
+    if (leadSource === "SOI") {
+      agentSplit = soiSplits[yearsWithCompany];
+      if (yearsWithCompany === "1" && isExcludedSOI) {
+        agentSplit = 0.85;
+      }
     } else if (leadSource === "Personal Deal") {
       agentSplit = 1.0;
     }
@@ -133,28 +135,24 @@ export default function CommissionCalculator() {
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl p-8 space-y-8">
         <h1 className="text-4xl font-extrabold text-blue-900 text-center">Commission Calculator</h1>
         <p className="text-center text-gray-500">Estimate your take-home pay from any deal. Numbers are for reference only.</p>
-  
+
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Column 1 */}
+          {/* Left Column */}
           <div className="space-y-6">
-            {/* Office Location */}
+            {/* Office */}
             <div>
-              <label className="block text-sm font-semibold text-blue-900 mb-1">Office Location</label>
-              <select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full p-3 border rounded-xl shadow-sm"
-              >
+              <label className="block font-medium text-blue-900 mb-1">Office Location</label>
+              <select value={location} onChange={(e) => setLocation(e.target.value)} className="w-full p-3 border rounded-xl shadow-sm">
                 <option value="">Choose Office</option>
                 {["Charleston", "Columbia", "Charlotte", "Greenville", "Savannah", "Jacksonville", "Atlanta"].map((city) => (
                   <option key={city} value={city}>{city}</option>
                 ))}
               </select>
             </div>
-  
+
             {/* Contract Price */}
             <div>
-              <label className="block text-sm font-semibold text-blue-900 mb-1">Contract Price</label>
+              <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
               <input
                 type="text"
                 value={priceInput}
@@ -164,10 +162,10 @@ export default function CommissionCalculator() {
                 placeholder="$0.00"
               />
             </div>
-  
-            {/* Commission Input */}
+
+            {/* Commission */}
             <div>
-              <label className="block text-sm font-semibold text-blue-900 mb-1">Commission (Percent or Flat Fee)</label>
+              <label className="block font-medium text-blue-900 mb-1">Commission (Percent or Flat Fee)</label>
               <input
                 type="text"
                 value={commissionInput}
@@ -177,66 +175,44 @@ export default function CommissionCalculator() {
                 placeholder="3% or $9000"
               />
             </div>
-  
+
             {/* Lead Source */}
             <div>
-              <label className="block text-sm font-semibold text-blue-900 mb-1">Lead Source</label>
-              <select
-                value={leadSource}
-                onChange={(e) => setLeadSource(e.target.value)}
-                className="w-full p-3 border rounded-xl shadow-sm"
-              >
+              <label className="block font-medium text-blue-900 mb-1">Lead Source</label>
+              <select value={leadSource} onChange={(e) => setLeadSource(e.target.value)} className="w-full p-3 border rounded-xl shadow-sm">
+                <option value="">Choose Lead Source</option>
                 {Object.keys(referralFees).map((source) => (
                   <option key={source} value={source}>{source}</option>
                 ))}
               </select>
             </div>
-  
-            {/* SOI / Zillow / Other fields */}
-            {leadSource === "SOI" && (
-              <div className="text-sm text-blue-900 font-medium">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={isExcludedSOI}
-                    onChange={(e) => setIsExcludedSOI(e.target.checked)}
-                    className="mr-2"
-                  />
-                  Is this lead on your Exclusion List?
-                </label>
-              </div>
+
+            {/* SOI Exclusion */}
+            {leadSource === "SOI" && yearsWithCompany === "1" && (
+              <label className="inline-flex items-center text-blue-900 font-medium text-sm">
+                <input type="checkbox" className="mr-2" checked={isExcludedSOI} onChange={(e) => setIsExcludedSOI(e.target.checked)} />
+                Is this lead on your Exclusion List?
+              </label>
             )}
-  
+
+            {/* Zillow Flags */}
             {leadSource === "Zillow.com" && (
               <>
-                <div className="text-sm text-blue-900 font-medium">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={withinTwoYearsZillow}
-                      onChange={(e) => setWithinTwoYearsZillow(e.target.checked)}
-                      className="mr-2"
-                    />
-                    Transaction within 2 years of claiming the lead?
-                  </label>
-                </div>
-                <div className="text-sm text-blue-900 font-medium">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={firstOrSecondZillowTransaction}
-                      onChange={(e) => setFirstOrSecondZillowTransaction(e.target.checked)}
-                      className="mr-2"
-                    />
-                    First or second transaction with this lead?
-                  </label>
-                </div>
+                <label className="inline-flex items-center text-blue-900 font-medium text-sm">
+                  <input type="checkbox" className="mr-2" checked={withinTwoYearsZillow} onChange={(e) => setWithinTwoYearsZillow(e.target.checked)} />
+                  Within 2 years of claiming lead?
+                </label>
+                <label className="inline-flex items-center text-blue-900 font-medium text-sm">
+                  <input type="checkbox" className="mr-2" checked={firstOrSecondZillowTransaction} onChange={(e) => setFirstOrSecondZillowTransaction(e.target.checked)} />
+                  First or second transaction?
+                </label>
               </>
             )}
-  
+
+            {/* Other Referral Fee */}
             {leadSource === "Other" && (
               <div>
-                <label className="block text-sm font-semibold text-blue-900 mb-1">Custom Referral Fee %</label>
+                <label className="block font-medium text-blue-900 mb-1">Custom Referral Fee %</label>
                 <input
                   type="number"
                   value={customReferralFee}
@@ -246,71 +222,61 @@ export default function CommissionCalculator() {
               </div>
             )}
           </div>
-  
-          {/* Column 2 */}
+
+          {/* Right Column */}
           <div className="space-y-6">
-            {/* Years with company */}
             <div>
-              <label className="block text-sm font-semibold text-blue-900 mb-1">Years with Chucktown Homes</label>
-              <select
-                value={yearsWithCompany}
-                onChange={(e) => setYearsWithCompany(Number(e.target.value))}
-                className="w-full p-3 border rounded-xl shadow-sm"
-              >
-                {[1, 2, 3, 4, 5].map((yr) => (
-                  <option key={yr} value={yr}>{yr} year{yr > 1 ? "s" : ""}</option>
-                ))}
-                <option value={6}>5+ years</option>
+              <label className="block font-medium text-blue-900 mb-1">How long have you been with Chucktown Homes?</label>
+              <select value={yearsWithCompany} onChange={(e) => setYearsWithCompany(e.target.value)} className="w-full p-3 border rounded-xl shadow-sm">
+                <option value="">Select tenure</option>
+                <option value="1">This is my 1st year</option>
+                <option value="2">This is my 2nd year</option>
+                <option value="3">This is my 3rd year</option>
+                <option value="4">This is my 4th year</option>
+                <option value="5">This is my 5th year</option>
+                <option value="6">I have been with CTH for more than 5 years</option>
               </select>
             </div>
-  
-            {/* KW Cap Status */}
-            <div className="text-sm text-blue-900 font-medium">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  checked={hasCapped}
-                  onChange={(e) => setHasCapped(e.target.checked)}
-                  className="mr-2"
-                />
-                Have you capped with KW this year?
-              </label>
+
+            {/* KW Cap Toggle */}
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Have you capped with KW this year?</label>
+              <div className="flex gap-4">
+                <label className="inline-flex items-center">
+                  <input type="radio" name="cap" value="yes" checked={hasCapped === true} onChange={() => setHasCapped(true)} className="mr-2" />
+                  Yes
+                </label>
+                <label className="inline-flex items-center">
+                  <input type="radio" name="cap" value="no" checked={hasCapped === false} onChange={() => setHasCapped(false)} className="mr-2" />
+                  No
+                </label>
+              </div>
             </div>
-  
-            {!hasCapped && (
+
+            {!hasCapped && hasCapped !== null && (
               <>
                 <div>
-                  <label className="block text-sm font-semibold text-blue-900 mb-1">KW Cap Remaining</label>
-                  <input
-                    type="number"
-                    value={kwCapRemaining}
-                    onChange={(e) => setKwCapRemaining(Number(e.target.value))}
-                    className="w-full p-3 border rounded-xl shadow-sm"
-                  />
+                  <label className="block font-medium text-blue-900 mb-1">KW Cap Remaining</label>
+                  <input type="number" value={kwCapRemaining} onChange={(e) => setKwCapRemaining(Number(e.target.value))} className="w-full p-3 border rounded-xl shadow-sm" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-blue-900 mb-1">KW Royalty Remaining</label>
-                  <input
-                    type="number"
-                    value={kwRoyaltyRemaining}
-                    onChange={(e) => setKwRoyaltyRemaining(Number(e.target.value))}
-                    className="w-full p-3 border rounded-xl shadow-sm"
-                  />
+                  <label className="block font-medium text-blue-900 mb-1">KW Royalty Remaining</label>
+                  <input type="number" value={kwRoyaltyRemaining} onChange={(e) => setKwRoyaltyRemaining(Number(e.target.value))} className="w-full p-3 border rounded-xl shadow-sm" />
                 </div>
               </>
             )}
           </div>
         </div>
-  
+
         {/* Calculate Button */}
         <button
           onClick={handleCalculate}
-          className="w-full bg-blue-900 text-white text-lg font-semibold py-3 rounded-xl shadow-md hover:bg-blue-800 transition-all"
+          className="w-full bg-blue-900 text-white font-semibold text-lg py-3 rounded-xl hover:bg-blue-800 transition-all"
         >
           Calculate
         </button>
-  
-        {/* Results */}
+
+        {/* Result Output */}
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
             <h2 className="text-xl font-bold text-blue-900 mb-4">Your Commission Summary</h2>
@@ -322,26 +288,25 @@ export default function CommissionCalculator() {
             <p><strong>KW Commission:</strong> {currencyFormatter.format(result.kwCommission)}</p>
             <p><strong>KW Royalty:</strong> {currencyFormatter.format(result.kwRoyalty)}</p>
             <p className="text-lg font-bold text-green-700 mt-4">Net Income: {currencyFormatter.format(result.netIncome)}</p>
-  
-            {showTaxPlan && (
-              <div className="mt-4">
-                <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
-                  <input
-                    type="checkbox"
-                    checked={includeTaxPlanning}
-                    onChange={(e) => setIncludeTaxPlanning(e.target.checked)}
-                  />
-                  Plan for income tax?
-                </label>
-                {includeTaxPlanning && (
-                  <p className="mt-2 text-blue-600 font-semibold">
-                    Suggested Tax Set-Aside (20%): {currencyFormatter.format(result.netIncome * 0.2)}
-                  </p>
-                )}
-              </div>
-            )}
+
+            <div className="mt-4">
+              <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
+                <input
+                  type="checkbox"
+                  checked={includeTaxPlanning}
+                  onChange={(e) => setIncludeTaxPlanning(e.target.checked)}
+                />
+                Plan for income tax?
+              </label>
+              {includeTaxPlanning && (
+                <p className="mt-2 text-blue-600 font-semibold">
+                  Suggested Tax Set-Aside (20%): {currencyFormatter.format(result.netIncome * 0.2)}
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>
     </div>
-  );} // end of function
+  );
+}
