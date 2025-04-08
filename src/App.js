@@ -1,44 +1,24 @@
-// CommissionCalculator.js
 import { useState, useRef } from "react";
-import { motion } from "framer-motion";
 
 export default function CommissionCalculator() {
+  const [location, setLocation] = useState("");
   const [contractPrice, setContractPrice] = useState(0);
   const [commissionInput, setCommissionInput] = useState("3%");
   const [leadSource, setLeadSource] = useState("");
+  const [customReferralFee, setCustomReferralFee] = useState(0);
   const [yearsWithCompany, setYearsWithCompany] = useState("");
   const [hasCapped, setHasCapped] = useState(null);
-  const [result, setResult] = useState({
-    totalCommission: 0,
-    referralFeeRate: 0,
-    afterReferral: 0,
-    agentGross: 0,
-    kwCommission: 0,
-    kwRoyalty: 0,
-    netIncome: 0,
-    splitLabel: "0/0",
-  });
+  const [kwCapRemaining, setKwCapRemaining] = useState(5000);
+  const [kwRoyaltyRemaining, setKwRoyaltyRemaining] = useState(3000);
+  const [result, setResult] = useState(null);
   const [priceInput, setPriceInput] = useState("");
+  const [showTaxPlan, setShowTaxPlan] = useState(false);
   const [includeTaxPlanning, setIncludeTaxPlanning] = useState(false);
-  const [missingFields, setMissingFields] = useState([]);
-  const [shakeTrigger, setShakeTrigger] = useState(false);
+  const [isExcludedSOI, setIsExcludedSOI] = useState(false);
+  const [withinTwoYearsZillow, setWithinTwoYearsZillow] = useState(true);
+  const [firstOrSecondZillowTransaction, setFirstOrSecondZillowTransaction] = useState(true);
 
-  const contractPriceRef = useRef();
-  const leadSourceRef = useRef();
-  const yearsRef = useRef();
-  const capYesRef = useRef();
-  const capNoRef = useRef();
-
-  const inputRefs = [contractPriceRef, leadSourceRef, yearsRef, capYesRef];
-
-  const handleKeyDown = (e, index) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (index === 0) handlePriceBlur(); // commit price
-      const next = inputRefs[index + 1];
-      next?.current?.focus();
-    }
-  };
+  const inputRefs = useRef([]);
 
   const referralFees = {
     "SOI": 0,
@@ -50,7 +30,7 @@ export default function CommissionCalculator() {
     "EZ Referral": 0.25,
     "MarketVIP": 0.3,
     "OpenDoor (LWOD)": 0.35,
-    "Other": () => 0,
+    "Other": () => customReferralFee ? customReferralFee / 100 : 0,
     "Personal Deal": 0,
   };
 
@@ -72,24 +52,39 @@ export default function CommissionCalculator() {
     }
   };
 
-  const handleCalculate = () => {
-    const missing = [];
-    if (!contractPrice || contractPrice <= 0) missing.push("Contract Price");
-    if (!leadSource) missing.push("Lead Source");
-    if (!yearsWithCompany) missing.push("Years with Company");
-    if (hasCapped === null) missing.push("KW Cap Status");
+  const formatCommissionInput = () => {
+    const value = commissionInput.trim();
+    const num = parseFloat(value.replace(/[^\d.]/g, ""));
+    if (!isNaN(num)) {
+      if (value.includes("%") || num < 100) {
+        setCommissionInput(num + "%");
+      } else {
+        setCommissionInput("$" + num.toLocaleString());
+      }
+    }
+  };
 
-    if (missing.length > 0) {
-      setMissingFields(missing);
-      setShakeTrigger(true);
-      setTimeout(() => setShakeTrigger(false), 600);
+  const handleEnterKey = (e, index, callback) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      callback?.();
+      const nextInput = inputRefs.current[index + 1];
+      if (nextInput) {
+        nextInput.focus();
+      }
+    }
+  };
+
+  const handleCalculate = () => {
+    if (!contractPrice || contractPrice <= 0) {
+      alert("Please enter a valid contract price.");
       return;
     }
 
-    setMissingFields([]);
-    let referralFeeRate = 0;
+    let referralFeeRate;
     if (leadSource === "Zillow.com") {
-      referralFeeRate = referralFees["Zillow.com"](contractPrice);
+      const qualifyForZillowFee = withinTwoYearsZillow && firstOrSecondZillowTransaction;
+      referralFeeRate = qualifyForZillowFee ? referralFees["Zillow.com"](contractPrice) : referralFees["SOI"];
     } else {
       referralFeeRate = typeof referralFees[leadSource] === "function"
         ? referralFees[leadSource](contractPrice)
@@ -98,15 +93,23 @@ export default function CommissionCalculator() {
 
     const totalCommission = parseCommission();
     const afterReferral = totalCommission * (1 - referralFeeRate);
+
     let agentSplit = 0.5;
-    if (leadSource === "SOI") agentSplit = soiSplits[yearsWithCompany];
-    if (leadSource === "Personal Deal") agentSplit = 1.0;
+    if (leadSource === "SOI") {
+      agentSplit = soiSplits[yearsWithCompany];
+      if (yearsWithCompany === "1" && isExcludedSOI) {
+        agentSplit = 0.85;
+      }
+    } else if (leadSource === "Personal Deal") {
+      agentSplit = 1.0;
+    }
+
+    const splitLabel = `${Math.round(agentSplit * 100)}/${Math.round((1 - agentSplit) * 100)}`;
 
     const agentGross = afterReferral * agentSplit;
-    const kwCommission = hasCapped ? 0 : Math.min(agentGross * 0.3, 5000);
-    const kwRoyalty = hasCapped ? 0 : Math.min(agentGross * 0.06, 3000);
+    const kwCommission = hasCapped ? 0 : Math.min(agentGross * 0.3, kwCapRemaining);
+    const kwRoyalty = hasCapped ? 0 : Math.min(agentGross * 0.06, kwRoyaltyRemaining);
     const netIncome = agentGross - kwCommission - kwRoyalty;
-    const splitLabel = `${Math.round(agentSplit * 100)}/${Math.round((1 - agentSplit) * 100)}`;
 
     setResult({
       totalCommission,
@@ -118,6 +121,7 @@ export default function CommissionCalculator() {
       netIncome,
       splitLabel,
     });
+    setShowTaxPlan(true);
   };
 
   const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -142,91 +146,124 @@ export default function CommissionCalculator() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl p-8 space-y-8">
-        <h1 className="text-2xl font-bold text-blue-900">Commission Calculator</h1>
+        <h1 className="text-4xl font-extrabold text-blue-900 text-center">Commission Calculator</h1>
+        <p className="text-center text-gray-500">Estimate your take-home pay from any deal. Numbers are for reference only.</p>
 
         <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <motion.div animate={shakeTrigger && missingFields.includes("Contract Price") ? { x: [0, -5, 5, -5, 5, 0] } : {}}>
+          <div className="space-y-6">
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Office Location</label>
+              <select ref={(el) => inputRefs.current[0] = el} onKeyDown={(e) => handleEnterKey(e, 0)} value={location} onChange={(e) => setLocation(e.target.value)} className="w-full p-3 border rounded-xl shadow-sm">
+                <option value="">Choose Office</option>
+                {["Charleston", "Columbia", "Charlotte", "Greenville", "Savannah", "Jacksonville", "Atlanta"].map((city) => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
               <input
-                ref={contractPriceRef}
+                ref={(el) => inputRefs.current[1] = el}
                 type="text"
                 value={priceInput}
                 onChange={handlePriceChange}
                 onBlur={handlePriceBlur}
-                onKeyDown={(e) => handleKeyDown(e, 0)}
-                className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Contract Price") ? "border-red-500" : ""}`}
+                onKeyDown={(e) => handleEnterKey(e, 1, handlePriceBlur)}
+                className="w-full p-3 border rounded-xl shadow-sm"
                 placeholder="$0.00"
               />
-            </motion.div>
+            </div>
 
-            <motion.div animate={shakeTrigger && missingFields.includes("Lead Source") ? { x: [0, -5, 5, -5, 5, 0] } : {}}>
-              <label className="block font-medium text-blue-900 mt-6 mb-1">Lead Source</label>
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Commission (Percent or Flat Fee)</label>
+              <input
+                ref={(el) => inputRefs.current[2] = el}
+                type="text"
+                value={commissionInput}
+                onChange={(e) => setCommissionInput(e.target.value)}
+                onBlur={formatCommissionInput}
+                onKeyDown={(e) => handleEnterKey(e, 2, formatCommissionInput)}
+                className="w-full p-3 border rounded-xl shadow-sm"
+                placeholder="3% or $9000"
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Lead Source</label>
               <select
-                ref={leadSourceRef}
+                ref={(el) => inputRefs.current[3] = el}
                 value={leadSource}
                 onChange={(e) => setLeadSource(e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, 1)}
-                className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Lead Source") ? "border-red-500" : ""}`}
+                onKeyDown={(e) => handleEnterKey(e, 3)}
+                className="w-full p-3 border rounded-xl shadow-sm"
               >
-                <option value="">Select a source</option>
-                {Object.keys(referralFees).map((src) => (
-                  <option key={src} value={src}>{src}</option>
+                <option value="">Choose Lead Source</option>
+                {Object.keys(referralFees).map((source) => (
+                  <option key={source} value={source}>{source}</option>
                 ))}
               </select>
-            </motion.div>
-          </div>
+            </div>
 
-          <div>
-            <motion.div animate={shakeTrigger && missingFields.includes("Years with Company") ? { x: [0, -5, 5, -5, 5, 0] } : {}}>
-              <label className="block font-medium text-blue-900 mb-1">Years with Company</label>
+            {leadSource === "Other" && (
+              <div>
+                <label className="block font-medium text-blue-900 mb-1">Custom Referral Fee %</label>
+                <input
+                  ref={(el) => inputRefs.current[4] = el}
+                  type="number"
+                  value={customReferralFee}
+                  onChange={(e) => setCustomReferralFee(Number(e.target.value))}
+                  onKeyDown={(e) => handleEnterKey(e, 4)}
+                  className="w-full p-3 border rounded-xl shadow-sm"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">How long have you been with Chucktown Homes?</label>
               <select
-                ref={yearsRef}
+                ref={(el) => inputRefs.current[5] = el}
                 value={yearsWithCompany}
                 onChange={(e) => setYearsWithCompany(e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, 2)}
-                className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Years with Company") ? "border-red-500" : ""}`}
+                onKeyDown={(e) => handleEnterKey(e, 5)}
+                className="w-full p-3 border rounded-xl shadow-sm"
               >
                 <option value="">Select tenure</option>
-                <option value="1">1st Year</option>
-                <option value="2">2nd Year</option>
-                <option value="3">3rd Year</option>
-                <option value="4">4th Year</option>
-                <option value="5">5th Year</option>
-                <option value="6">6+ Years</option>
+                <option value="1">This is my 1st year</option>
+                <option value="2">This is my 2nd year</option>
+                <option value="3">This is my 3rd year</option>
+                <option value="4">This is my 4th year</option>
+                <option value="5">This is my 5th year</option>
+                <option value="6">I have been with CTH for more than 5 years</option>
               </select>
-            </motion.div>
+            </div>
 
-            <motion.div animate={shakeTrigger && missingFields.includes("KW Cap Status") ? { x: [0, -5, 5, -5, 5, 0] } : {}}>
-              <label className="block font-medium text-blue-900 mt-6 mb-1">Capped with KW?</label>
-              <div className="flex gap-4">
-                <label className="inline-flex items-center">
+            {hasCapped !== null && !hasCapped && (
+              <>
+                <div>
+                  <label className="block font-medium text-blue-900 mb-1">KW Cap Remaining</label>
                   <input
-                    ref={capYesRef}
-                    type="radio"
-                    name="capped"
-                    value="yes"
-                    checked={hasCapped === true}
-                    onChange={() => setHasCapped(true)}
-                    onKeyDown={(e) => handleKeyDown(e, 3)}
-                    className="mr-2"
+                    ref={(el) => inputRefs.current[6] = el}
+                    type="number"
+                    value={kwCapRemaining}
+                    onChange={(e) => setKwCapRemaining(Number(e.target.value))}
+                    onKeyDown={(e) => handleEnterKey(e, 6)}
+                    className="w-full p-3 border rounded-xl shadow-sm"
                   />
-                  Yes
-                </label>
-                <label className="inline-flex items-center">
+                </div>
+                <div>
+                  <label className="block font-medium text-blue-900 mb-1">KW Royalty Remaining</label>
                   <input
-                    ref={capNoRef}
-                    type="radio"
-                    name="capped"
-                    value="no"
-                    checked={hasCapped === false}
-                    onChange={() => setHasCapped(false)}
-                    className="mr-2"
+                    ref={(el) => inputRefs.current[7] = el}
+                    type="number"
+                    value={kwRoyaltyRemaining}
+                    onChange={(e) => setKwRoyaltyRemaining(Number(e.target.value))}
+                    onKeyDown={(e) => handleEnterKey(e, 7)}
+                    className="w-full p-3 border rounded-xl shadow-sm"
                   />
-                  No
-                </label>
-              </div>
-            </motion.div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -237,17 +274,17 @@ export default function CommissionCalculator() {
           Calculate
         </button>
 
-        {result.totalCommission > 0 && (
+        {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
             <h2 className="text-xl font-bold text-blue-900 mb-4">Your Commission Summary</h2>
             <p><strong>Total Commission:</strong> {currencyFormatter.format(result.totalCommission)}</p>
-            <p><strong>Referral Fee:</strong> {(result.referralFeeRate * 100).toFixed(1)}%</p>
+            <p><strong>Referral Fee (%):</strong> {(result.referralFeeRate * 100).toFixed(1)}%</p>
             <p><strong>After Referral:</strong> {currencyFormatter.format(result.afterReferral)}</p>
-            <p><strong>Split:</strong> {result.splitLabel}</p>
+            <p><strong>Team/Agent Split:</strong> {result.splitLabel} (You: {Math.round(result.agentGross / result.afterReferral * 100)}%)</p>
             <p><strong>Agent Gross:</strong> {currencyFormatter.format(result.agentGross)}</p>
             <p><strong>KW Commission:</strong> {currencyFormatter.format(result.kwCommission)}</p>
             <p><strong>KW Royalty:</strong> {currencyFormatter.format(result.kwRoyalty)}</p>
-            <p className="text-green-700 font-bold text-lg mt-4">Net Income: {currencyFormatter.format(result.netIncome)}</p>
+            <p className="text-lg font-bold text-green-700 mt-4">Net Income: {currencyFormatter.format(result.netIncome)}</p>
 
             <div className="mt-4">
               <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
