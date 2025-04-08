@@ -46,6 +46,7 @@ export default function CommissionCalculator() {
   const handleKeyDown = (e, index) => {
     if (e.key === "Enter") {
       e.preventDefault();
+      if (index === 0) handlePriceBlur(); // commit contract price manually
       const next = inputRefs[index + 1];
       next?.current?.focus();
     }
