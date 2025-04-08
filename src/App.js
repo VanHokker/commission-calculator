@@ -10,6 +10,8 @@ export default function CommissionCalculator() {
   const [hasCapped, setHasCapped] = useState(null);
   const [kwCapRemaining, setKwCapRemaining] = useState(5000);
   const [kwRoyaltyRemaining, setKwRoyaltyRemaining] = useState(3000);
+  const [kwCapInput, setKwCapInput] = useState("$5,000");
+  const [kwRoyaltyInput, setKwRoyaltyInput] = useState("$3,000");
   const [result, setResult] = useState(null);
   const [priceInput, setPriceInput] = useState("");
   const [showTaxPlan, setShowTaxPlan] = useState(false);
@@ -20,11 +22,12 @@ export default function CommissionCalculator() {
   const [validationError, setValidationError] = useState("");
 
   const inputRefs = useRef([]);
+  inputRefs.current = [];
 
   const focusAndSelect = (input) => {
     if (input) {
       input.focus();
-      input.select();
+      input.select?.();
     }
   };
 
@@ -81,25 +84,6 @@ export default function CommissionCalculator() {
     }
   };
 
-  const currencyFormatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  });
-
-  const handlePriceChange = (e) => {
-    const raw = e.target.value.replace(/[^\d.]/g, "");
-    setContractPrice(Number(raw));
-    setPriceInput(e.target.value);
-  };
-
-  const handlePriceBlur = () => {
-    setPriceInput(
-      isNaN(contractPrice)
-        ? ""
-        : currencyFormatter.format(contractPrice)
-    );
-  };
-
   const handleCalculate = () => {
     setValidationError("");
 
@@ -116,7 +100,7 @@ export default function CommissionCalculator() {
       return;
     }
     if (!yearsWithCompany) {
-      setValidationError("Please select how long you have been with Chucktown Homes");
+      setValidationError("Please select how long you have been with Chucktown Homes.");
       return;
     }
     if (hasCapped === null) {
@@ -170,11 +154,44 @@ export default function CommissionCalculator() {
     setShowTaxPlan(true);
   };
 
+  const currencyFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+
+  const handlePriceChange = (e) => {
+    const raw = e.target.value.replace(/[^\d.]/g, "");
+    setContractPrice(Number(raw));
+    setPriceInput(e.target.value);
+  };
+
+  const handlePriceBlur = () => {
+    setPriceInput(
+      isNaN(contractPrice)
+        ? ""
+        : currencyFormatter.format(contractPrice)
+    );
+  };
+
+  const handleKwCapChange = (e) => {
+    const raw = e.target.value.replace(/[^\d.]/g, "");
+    const value = Number(raw);
+    setKwCapRemaining(value);
+    setKwCapInput(currencyFormatter.format(value));
+  };
+
+  const handleKwRoyaltyChange = (e) => {
+    const raw = e.target.value.replace(/[^\d.]/g, "");
+    const value = Number(raw);
+    setKwRoyaltyRemaining(value);
+    setKwRoyaltyInput(currencyFormatter.format(value));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl p-8 space-y-8">
         <h1 className="text-4xl font-extrabold text-blue-900 text-center">Commission Calculator</h1>
-        <p className="text-center text-gray-500">The following calculation is simply an estimation. Please, contact your Team Leader for confirmation of the calculation or if you have questions about how CTH splits work.</p>
+        <p className="text-center text-gray-500">The following calculation is simply an estimation. Please contact your Team Leader to confirm results.</p>
 
         {validationError && (
           <div className="bg-red-100 text-red-700 border border-red-300 rounded-lg px-4 py-3 text-sm">
@@ -183,10 +200,17 @@ export default function CommissionCalculator() {
         )}
 
         <div className="grid md:grid-cols-2 gap-8">
+          {/* Left Column */}
           <div className="space-y-6">
             <div>
               <label className="block font-medium text-blue-900 mb-1">Office Location</label>
-              <select value={location} onChange={(e) => setLocation(e.target.value)} className="w-full p-3 border rounded-xl shadow-sm">
+              <select
+                ref={(el) => (inputRefs.current[0] = el)}
+                onKeyDown={(e) => handleEnterKey(e, 0)}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full p-3 border rounded-xl shadow-sm"
+              >
                 <option value="">Choose Office</option>
                 {["Charleston", "Columbia", "Charlotte", "Greenville", "Savannah", "Jacksonville", "Atlanta"].map((city) => (
                   <option key={city} value={city}>{city}</option>
@@ -195,19 +219,173 @@ export default function CommissionCalculator() {
             </div>
 
             <div>
-              <label className="block font-medium text-blue-900 mb-1">KW Cap Remaining</label>
-              <input type="number" value={kwCapRemaining} onChange={(e) => setKwCapRemaining(Number(e.target.value))} className="w-full p-3 border rounded-xl shadow-sm" />
+              <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
+              <input
+                ref={(el) => (inputRefs.current[1] = el)}
+                onKeyDown={(e) => handleEnterKey(e, 1)}
+                type="text"
+                value={priceInput}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/[^\d.]/g, "");
+                  setContractPrice(Number(raw));
+                  setPriceInput(e.target.value);
+                }}
+                onBlur={() => setPriceInput(isNaN(contractPrice) ? "" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(contractPrice))}
+                className="w-full p-3 border rounded-xl shadow-sm"
+                placeholder="$0.00"
+              />
             </div>
 
             <div>
-              <label className="block font-medium text-blue-900 mb-1">KW Royalty Remaining</label>
-              <input type="number" value={kwRoyaltyRemaining} onChange={(e) => setKwRoyaltyRemaining(Number(e.target.value))} className="w-full p-3 border rounded-xl shadow-sm" />
+              <label className="block font-medium text-blue-900 mb-1">Commission</label>
+              <input
+                ref={(el) => (inputRefs.current[2] = el)}
+                onKeyDown={(e) => handleEnterKey(e, 2)}
+                type="text"
+                value={commissionInput}
+                onChange={(e) => setCommissionInput(e.target.value)}
+                onBlur={() => {
+                  const value = commissionInput.trim();
+                  const num = parseFloat(value.replace(/[^\d.]/g, ""));
+                  if (!isNaN(num)) {
+                    if (value.includes("%") || num < 100) {
+                      setCommissionInput(num + "%");
+                    } else {
+                      setCommissionInput("$" + num.toLocaleString());
+                    }
+                  }
+                }}
+                className="w-full p-3 border rounded-xl shadow-sm"
+                placeholder="3% or $9000"
+              />
             </div>
+
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Lead Source</label>
+              <select
+                ref={(el) => (inputRefs.current[3] = el)}
+                onKeyDown={(e) => handleEnterKey(e, 3)}
+                value={leadSource}
+                onChange={(e) => setLeadSource(e.target.value)}
+                className="w-full p-3 border rounded-xl shadow-sm"
+              >
+                <option value="">Choose Lead Source</option>
+                {["SOI", "Zillow.com", "OpCity", "Movoto.com", "Listing.com", "EZHomesearch.com", "EZ Referral", "MarketVIP", "OpenDoor (LWOD)", "Other", "Personal Deal"].map((source) => (
+                  <option key={source} value={source}>{source}</option>
+                ))}
+              </select>
+            </div>
+
+            {leadSource === "Other" && (
+              <div>
+                <label className="block font-medium text-blue-900 mb-1">Custom Referral Fee %</label>
+                <input
+                  ref={(el) => (inputRefs.current[4] = el)}
+                  onKeyDown={(e) => handleEnterKey(e, 4)}
+                  type="number"
+                  value={customReferralFee}
+                  onChange={(e) => setCustomReferralFee(Number(e.target.value))}
+                  className="w-full p-3 border rounded-xl shadow-sm"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Years with Chucktown Homes</label>
+              <select
+                ref={(el) => (inputRefs.current[5] = el)}
+                onKeyDown={(e) => handleEnterKey(e, 5)}
+                value={yearsWithCompany}
+                onChange={(e) => setYearsWithCompany(e.target.value)}
+                className="w-full p-3 border rounded-xl shadow-sm"
+              >
+                <option value="">Select tenure</option>
+                <option value="1">This is my 1st year</option>
+                <option value="2">This is my 2nd year</option>
+                <option value="3">This is my 3rd year</option>
+                <option value="4">This is my 4th year</option>
+                <option value="5">This is my 5th year</option>
+                <option value="6">I have been with CTH for more than 5 years</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-medium text-blue-900 mb-1">Have you capped with KW this year?</label>
+              <div className="flex gap-4">
+                <label className="inline-flex items-center">
+                  <input
+                    ref={(el) => (inputRefs.current[6] = el)}
+                    onKeyDown={(e) => handleEnterKey(e, 6)}
+                    type="radio"
+                    name="cap"
+                    value="yes"
+                    checked={hasCapped === true}
+                    onChange={() => setHasCapped(true)}
+                    className="mr-2"
+                  />
+                  Yes
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    ref={(el) => (inputRefs.current[7] = el)}
+                    onKeyDown={(e) => handleEnterKey(e, 7)}
+                    type="radio"
+                    name="cap"
+                    value="no"
+                    checked={hasCapped === false}
+                    onChange={() => setHasCapped(false)}
+                    className="mr-2"
+                  />
+                  No
+                </label>
+              </div>
+            </div>
+
+            {!hasCapped && hasCapped !== null && (
+              <>
+                <div>
+                  <label className="block font-medium text-blue-900 mb-1">KW Cap Remaining</label>
+                  <input
+                    ref={(el) => (inputRefs.current[8] = el)}
+                    onKeyDown={(e) => handleEnterKey(e, 8)}
+                    type="text"
+                    value={kwCapInput}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^\d.]/g, "");
+                      const value = Number(raw);
+                      setKwCapRemaining(value);
+                      setKwCapInput(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value));
+                    }}
+                    className="w-full p-3 border rounded-xl shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-blue-900 mb-1">KW Royalty Remaining</label>
+                  <input
+                    ref={(el) => (inputRefs.current[9] = el)}
+                    onKeyDown={(e) => handleEnterKey(e, 9)}
+                    type="text"
+                    value={kwRoyaltyInput}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^\d.]/g, "");
+                      const value = Number(raw);
+                      setKwRoyaltyRemaining(value);
+                      setKwRoyaltyInput(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value));
+                    }}
+                    className="w-full p-3 border rounded-xl shadow-sm"
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
 
         <button
           onClick={handleCalculate}
+          ref={(el) => (inputRefs.current[10] = el)}
           className="w-full bg-blue-900 text-white font-semibold text-lg py-3 rounded-xl hover:bg-blue-800 transition-all"
         >
           Calculate
