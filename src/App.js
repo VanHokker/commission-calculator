@@ -35,6 +35,18 @@ export default function CommissionCalculator() {
   const yearsRef = useRef();
   const capRef = useRef();
 
+  const formRefs = [contractPriceRef, leadSourceRef, yearsRef, capRef];
+
+  const handleEnterKey = (e, currentIndex) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const nextRef = formRefs[currentIndex + 1];
+      if (nextRef?.current) {
+        nextRef.current.focus();
+      }
+    }
+  };
+
   const referralFees = {
     "SOI": 0,
     "Zillow.com": (price) => price < 150000 ? 0.3 : price <= 250000 ? 0.35 : 0.4,
@@ -182,6 +194,7 @@ export default function CommissionCalculator() {
                 value={priceInput}
                 onChange={handlePriceChange}
                 onBlur={handlePriceBlur}
+                onKeyDown={(e) => handleEnterKey(e, 0)}
                 className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Contract Price") ? "border-red-500" : ""}`}
                 placeholder="$0.00"
               />
@@ -190,7 +203,7 @@ export default function CommissionCalculator() {
             <label ref={leadSourceRef} className="block font-medium text-blue-900 mb-1 mt-6">
               Lead Source <span title="Where the lead came from." className="cursor-help text-blue-600">ℹ️</span>
             </label>
-            <select value={leadSource} onChange={(e) => setLeadSource(e.target.value)} className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Lead Source") ? "border-red-500" : ""}`}>
+            <select value={leadSource} onChange={(e) => setLeadSource(e.target.value)} onKeyDown={(e) => handleEnterKey(e, 1)} className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Lead Source") ? "border-red-500" : ""}`}>
               <option value="">Choose Lead Source</option>
               {Object.keys(referralFees).map((source) => (
                 <option key={source} value={source}>{source}</option>
@@ -203,7 +216,7 @@ export default function CommissionCalculator() {
             <label ref={yearsRef} className="block font-medium text-blue-900 mb-1">
               Years with Company <span title="Determines your SOI split if applicable." className="cursor-help text-blue-600">ℹ️</span>
             </label>
-            <select value={yearsWithCompany} onChange={(e) => setYearsWithCompany(e.target.value)} className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Years with Company") ? "border-red-500" : ""}`}>
+            <select value={yearsWithCompany} onChange={(e) => setYearsWithCompany(e.target.value)} onKeyDown={(e) => handleEnterKey(e, 2)} className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Years with Company") ? "border-red-500" : ""}`}>
               <option value="">Select tenure</option>
               <option value="1">This is my 1st year</option>
               <option value="2">This is my 2nd year</option>
@@ -234,7 +247,6 @@ export default function CommissionCalculator() {
           Calculate
         </button>
 
-        {/* Result Output */}
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
             <h2 className="text-xl font-bold text-blue-900 mb-4">Your Commission Summary</h2>
