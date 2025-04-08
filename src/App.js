@@ -156,65 +156,51 @@ export default function CommissionCalculator() {
 
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-6">
-            <div>
-              <label className="block font-medium text-blue-900 mb-1">Office Location</label>
-              <select ref={(el) => inputRefs.current[0] = el} onKeyDown={(e) => handleEnterKey(e, 0)} value={location} onChange={(e) => setLocation(e.target.value)} className="w-full p-3 border rounded-xl shadow-sm">
-                <option value="">Choose Office</option>
-                {["Charleston", "Columbia", "Charlotte", "Greenville", "Savannah", "Jacksonville", "Atlanta"].map((city) => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-            </div>
+            {/* ... Existing fields ... */}
 
-            <div>
-              <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
-              <input
-                ref={(el) => inputRefs.current[1] = el}
-                type="text"
-                value={priceInput}
-                onChange={handlePriceChange}
-                onBlur={handlePriceBlur}
-                onKeyDown={(e) => handleEnterKey(e, 1, handlePriceBlur)}
-                className="w-full p-3 border rounded-xl shadow-sm"
-                placeholder="$0.00"
-              />
-            </div>
+            {/* Conditionally show exclusion checkbox */}
+            {leadSource === "SOI" && yearsWithCompany === "1" && (
+              <label className="inline-flex items-center text-blue-900 font-medium text-sm">
+                <input
+                  type="checkbox"
+                  className="mr-2"
+                  checked={isExcludedSOI}
+                  onChange={(e) => setIsExcludedSOI(e.target.checked)}
+                />
+                Is this lead on your Exclusion List?
+              </label>
+            )}
 
-            <div>
-              <label className="block font-medium text-blue-900 mb-1">Commission (Percent or Flat Fee)</label>
-              <input
-                ref={(el) => inputRefs.current[2] = el}
-                type="text"
-                value={commissionInput}
-                onChange={(e) => setCommissionInput(e.target.value)}
-                onBlur={formatCommissionInput}
-                onKeyDown={(e) => handleEnterKey(e, 2, formatCommissionInput)}
-                className="w-full p-3 border rounded-xl shadow-sm"
-                placeholder="3% or $9000"
-              />
-            </div>
+            {/* Zillow flags */}
+            {leadSource === "Zillow.com" && (
+              <>
+                <label className="inline-flex items-center text-blue-900 font-medium text-sm">
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={withinTwoYearsZillow}
+                    onChange={(e) => setWithinTwoYearsZillow(e.target.checked)}
+                  />
+                  Within 2 years of claiming lead?
+                </label>
+                <label className="inline-flex items-center text-blue-900 font-medium text-sm">
+                  <input
+                    type="checkbox"
+                    className="mr-2"
+                    checked={firstOrSecondZillowTransaction}
+                    onChange={(e) => setFirstOrSecondZillowTransaction(e.target.checked)}
+                  />
+                  First or second transaction?
+                </label>
+              </>
+            )}
 
-            <div>
-              <label className="block font-medium text-blue-900 mb-1">Lead Source</label>
-              <select
-                ref={(el) => inputRefs.current[3] = el}
-                value={leadSource}
-                onChange={(e) => setLeadSource(e.target.value)}
-                onKeyDown={(e) => handleEnterKey(e, 3)}
-                className="w-full p-3 border rounded-xl shadow-sm"
-              >
-                <option value="">Choose Lead Source</option>
-                {Object.keys(referralFees).map((source) => (
-                  <option key={source} value={source}>{source}</option>
-                ))}
-              </select>
-            </div>
-
+            {/* Custom referral fee if "Other" is selected */}
             {leadSource === "Other" && (
               <div>
                 <label className="block font-medium text-blue-900 mb-1">Custom Referral Fee %</label>
                 <input
-                  ref={(el) => inputRefs.current[4] = el}
+                  ref={(el) => (inputRefs.current[4] = el)}
                   type="number"
                   value={customReferralFee}
                   onChange={(e) => setCustomReferralFee(Number(e.target.value))}
@@ -224,31 +210,13 @@ export default function CommissionCalculator() {
               </div>
             )}
 
-            <div>
-              <label className="block font-medium text-blue-900 mb-1">How long have you been with Chucktown Homes?</label>
-              <select
-                ref={(el) => inputRefs.current[5] = el}
-                value={yearsWithCompany}
-                onChange={(e) => setYearsWithCompany(e.target.value)}
-                onKeyDown={(e) => handleEnterKey(e, 5)}
-                className="w-full p-3 border rounded-xl shadow-sm"
-              >
-                <option value="">Select tenure</option>
-                <option value="1">This is my 1st year</option>
-                <option value="2">This is my 2nd year</option>
-                <option value="3">This is my 3rd year</option>
-                <option value="4">This is my 4th year</option>
-                <option value="5">This is my 5th year</option>
-                <option value="6">I have been with CTH for more than 5 years</option>
-              </select>
-            </div>
-
-            {hasCapped !== null && !hasCapped && (
+            {/* KW Cap Remaining fields if agent hasn't capped */}
+            {hasCapped === false && (
               <>
                 <div>
                   <label className="block font-medium text-blue-900 mb-1">KW Cap Remaining</label>
                   <input
-                    ref={(el) => inputRefs.current[6] = el}
+                    ref={(el) => (inputRefs.current[6] = el)}
                     type="number"
                     value={kwCapRemaining}
                     onChange={(e) => setKwCapRemaining(Number(e.target.value))}
@@ -259,7 +227,7 @@ export default function CommissionCalculator() {
                 <div>
                   <label className="block font-medium text-blue-900 mb-1">KW Royalty Remaining</label>
                   <input
-                    ref={(el) => inputRefs.current[7] = el}
+                    ref={(el) => (inputRefs.current[7] = el)}
                     type="number"
                     value={kwRoyaltyRemaining}
                     onChange={(e) => setKwRoyaltyRemaining(Number(e.target.value))}
