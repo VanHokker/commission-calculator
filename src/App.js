@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 
 export default function CommissionCalculator() {
@@ -30,20 +30,24 @@ export default function CommissionCalculator() {
   const [missingFields, setMissingFields] = useState([]);
   const [shakeTrigger, setShakeTrigger] = useState(false);
 
-  const contractPriceRef = useRef();
-  const leadSourceRef = useRef();
-  const yearsRef = useRef();
-  const capRef = useRef();
+  const contractPriceInputRef = useRef();
+  const leadSourceSelectRef = useRef();
+  const yearsSelectRef = useRef();
+  const capRadioYesRef = useRef();
+  const capRadioNoRef = useRef();
 
-  const formRefs = [contractPriceRef, leadSourceRef, yearsRef, capRef];
+  const inputRefs = [
+    contractPriceInputRef,
+    leadSourceSelectRef,
+    yearsSelectRef,
+    capRadioYesRef,
+  ];
 
-  const handleEnterKey = (e, currentIndex) => {
+  const handleKeyDown = (e, index) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      const nextRef = formRefs[currentIndex + 1];
-      if (nextRef?.current) {
-        nextRef.current.focus();
-      }
+      const next = inputRefs[index + 1];
+      next?.current?.focus();
     }
   };
 
@@ -102,18 +106,6 @@ export default function CommissionCalculator() {
       setMissingFields(missing);
       setShakeTrigger(true);
       setTimeout(() => setShakeTrigger(false), 600);
-      const refs = { "Contract Price": contractPriceRef, "Lead Source": leadSourceRef, "Years with Company": yearsRef, "KW Cap Status": capRef };
-      refs[missing[0]].current.scrollIntoView({ behavior: "smooth" });
-      setResult({
-        totalCommission: 0,
-        referralFeeRate: 0,
-        afterReferral: 0,
-        agentGross: 0,
-        kwCommission: 0,
-        kwRoyalty: 0,
-        netIncome: 0,
-        splitLabel: "0/0",
-      });
       return;
     } else {
       setMissingFields([]);
@@ -187,56 +179,75 @@ export default function CommissionCalculator() {
         <div className="grid md:grid-cols-2 gap-8">
           <div>
             <h2 className="text-xl font-bold text-blue-900 mb-4">Deal Info</h2>
-            <motion.div animate={shakeTrigger ? { x: [0, -5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.5 }}>
-              <label ref={contractPriceRef} className="block font-medium text-blue-900 mb-1">Contract Price</label>
+            <motion.div animate={shakeTrigger && missingFields.includes("Contract Price") ? { x: [0, -5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.5 }}>
+              <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
               <input
+                ref={contractPriceInputRef}
                 type="text"
                 value={priceInput}
                 onChange={handlePriceChange}
                 onBlur={handlePriceBlur}
-                onKeyDown={(e) => handleEnterKey(e, 0)}
+                onKeyDown={(e) => handleKeyDown(e, 0)}
                 className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Contract Price") ? "border-red-500" : ""}`}
                 placeholder="$0.00"
               />
             </motion.div>
 
-            <label ref={leadSourceRef} className="block font-medium text-blue-900 mb-1 mt-6">
-              Lead Source <span title="Where the lead came from." className="cursor-help text-blue-600">ℹ️</span>
-            </label>
-            <select value={leadSource} onChange={(e) => setLeadSource(e.target.value)} onKeyDown={(e) => handleEnterKey(e, 1)} className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Lead Source") ? "border-red-500" : ""}`}>
-              <option value="">Choose Lead Source</option>
-              {Object.keys(referralFees).map((source) => (
-                <option key={source} value={source}>{source}</option>
-              ))}
-            </select>
+            <motion.div animate={shakeTrigger && missingFields.includes("Lead Source") ? { x: [0, -5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.5 }}>
+              <label className="block font-medium text-blue-900 mb-1 mt-6">
+                Lead Source <span title="Where the lead came from." className="cursor-help text-blue-600">ℹ️</span>
+              </label>
+              <select
+                ref={leadSourceSelectRef}
+                value={leadSource}
+                onChange={(e) => setLeadSource(e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, 1)}
+                className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Lead Source") ? "border-red-500" : ""}`}
+              >
+                <option value="">Choose Lead Source</option>
+                {Object.keys(referralFees).map((source) => (
+                  <option key={source} value={source}>{source}</option>
+                ))}
+              </select>
+            </motion.div>
           </div>
 
           <div>
             <h2 className="text-xl font-bold text-blue-900 mb-4">Agent Info</h2>
-            <label ref={yearsRef} className="block font-medium text-blue-900 mb-1">
-              Years with Company <span title="Determines your SOI split if applicable." className="cursor-help text-blue-600">ℹ️</span>
-            </label>
-            <select value={yearsWithCompany} onChange={(e) => setYearsWithCompany(e.target.value)} onKeyDown={(e) => handleEnterKey(e, 2)} className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Years with Company") ? "border-red-500" : ""}`}>
-              <option value="">Select tenure</option>
-              <option value="1">This is my 1st year</option>
-              <option value="2">This is my 2nd year</option>
-              <option value="3">This is my 3rd year</option>
-              <option value="4">This is my 4th year</option>
-              <option value="5">This is my 5th year</option>
-              <option value="6">More than 5 years</option>
-            </select>
+            <motion.div animate={shakeTrigger && missingFields.includes("Years with Company") ? { x: [0, -5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.5 }}>
+              <label className="block font-medium text-blue-900 mb-1">
+                Years with Company <span title="Determines your SOI split if applicable." className="cursor-help text-blue-600">ℹ️</span>
+              </label>
+              <select
+                ref={yearsSelectRef}
+                value={yearsWithCompany}
+                onChange={(e) => setYearsWithCompany(e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, 2)}
+                className={`w-full p-3 border rounded-xl shadow-sm ${missingFields.includes("Years with Company") ? "border-red-500" : ""}`}
+              >
+                <option value="">Select tenure</option>
+                <option value="1">This is my 1st year</option>
+                <option value="2">This is my 2nd year</option>
+                <option value="3">This is my 3rd year</option>
+                <option value="4">This is my 4th year</option>
+                <option value="5">This is my 5th year</option>
+                <option value="6">More than 5 years</option>
+              </select>
+            </motion.div>
 
-            <label ref={capRef} className="block font-medium text-blue-900 mb-1 mt-6">
-              Capped with KW? <span title="Have you met your cap with Keller Williams this year?" className="cursor-help text-blue-600">ℹ️</span>
-            </label>
-            <div className="flex gap-4">
-              <label className="inline-flex items-center">
-                <input type="radio" name="cap" value="yes" checked={hasCapped === true} onChange={() => setHasCapped(true)} className="mr-2" /> Yes
+            <motion.div animate={shakeTrigger && missingFields.includes("KW Cap Status") ? { x: [0, -5, 5, -5, 5, 0] } : {}} transition={{ duration: 0.5 }}>
+              <label className="block font-medium text-blue-900 mb-1 mt-6">
+                Capped with KW? <span title="Have you met your cap with Keller Williams this year?" className="cursor-help text-blue-600">ℹ️</span>
               </label>
-              <label className="inline-flex items-center">
-                <input type="radio" name="cap" value="no" checked={hasCapped === false} onChange={() => setHasCapped(false)} className="mr-2" /> No
-              </label>
-            </div>
+              <div className="flex gap-4">
+                <label className="inline-flex items-center">
+                  <input ref={capRadioYesRef} type="radio" name="cap" value="yes" checked={hasCapped === true} onChange={() => setHasCapped(true)} onKeyDown={(e) => handleKeyDown(e, 3)} className="mr-2" /> Yes
+                </label>
+                <label className="inline-flex items-center">
+                  <input ref={capRadioNoRef} type="radio" name="cap" value="no" checked={hasCapped === false} onChange={() => setHasCapped(false)} className="mr-2" /> No
+                </label>
+              </div>
+            </motion.div>
           </div>
         </div>
 
