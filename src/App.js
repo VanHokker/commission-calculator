@@ -145,6 +145,7 @@ export default function CommissionCalculator() {
 
     const totalCommission = parseCommission();
     const afterReferral = totalCommission * (1 - referralFeeRate);
+    const fmlsFee = location === "Atlanta" ? contractPrice * 0.0012 : 0;
 
     let agentSplit = 0.5;
 
@@ -163,7 +164,7 @@ export default function CommissionCalculator() {
     const agentGross = afterReferral * agentSplit;
     const kwCommission = hasCapped ? 0 : Math.min(agentGross * 0.3, kwCapRemaining);
     const kwRoyalty = hasCapped ? 0 : Math.min(agentGross * 0.06, kwRoyaltyRemaining);
-    const netIncome = agentGross - kwCommission - kwRoyalty;
+    const netIncome = agentGross - kwCommission - kwRoyalty - fmlsFee;
 
     setResult({
       totalCommission,
@@ -174,6 +175,7 @@ export default function CommissionCalculator() {
       kwRoyalty,
       netIncome,
       splitLabel,
+      fmlsFee,
     });
     setShowTaxPlan(true);
   };
@@ -478,6 +480,9 @@ export default function CommissionCalculator() {
             <p><strong>Total Commission:</strong> {currencyFormatter.format(result.totalCommission)}</p>
             <p><strong>Referral Fee (%):</strong> {(result.referralFeeRate * 100).toFixed(1)}%</p>
             <p><strong>After Referral:</strong> {currencyFormatter.format(result.afterReferral)}</p>
+            {location === "Atlanta" && (
+              <p><strong>FMLS Fee (0.12%):</strong> {currencyFormatter.format(result.fmlsFee)}</p>
+            )}
             <p><strong>Team/Agent Split:</strong> {result.splitLabel}</p>
             <p><strong>Agent Gross:</strong> {currencyFormatter.format(result.agentGross)}</p>
             <p><strong>KW Commission:</strong> {currencyFormatter.format(result.kwCommission)}</p>
