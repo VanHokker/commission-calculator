@@ -273,18 +273,6 @@ export default function CommissionCalculator() {
                 onChange={(e) => setLeadSource(e.target.value)}
                 className="w-full p-3 border rounded-xl shadow-sm"
               >
-            {leadSource === "Personal Deal" && (
-             <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ You are allowed two free Personal Deals a year.
-              </div>
-            )}
-
-            {leadSource === "Immediate Family Member" && (
-              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ You are allowed two deals at 80/15 involving immediate Family members a year.
-              </div>
-            )}
-
                 <option value="">Choose Lead Source</option>
                 {["SOI", 
                 "Zillow.com", 
@@ -300,7 +288,18 @@ export default function CommissionCalculator() {
                   <option key={source} value={source}>{source}</option>
                 ))}
               </select>
-            </div>
+
+            {leadSource === "Personal Deal" && (
+             <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
+                ⚠️ You are allowed two free Personal Deals a year.
+              </div>
+            )}
+
+            {leadSource === "Immediate Family Member" && (
+              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
+                ⚠️ You are allowed two deals at 80/15 involving immediate Family members a year.
+              </div>
+            )}
 
             {leadSource === "Other" && (
               <div>
