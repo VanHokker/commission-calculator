@@ -241,7 +241,7 @@ export default function CommissionCalculator() {
             </div>
 
             <div>
-              <label className="block font-medium text-blue-900 mb-1">Commission</label>
+              <label className="block font-medium text-blue-900 mb-1">Commission as a % or a flat fee</label>
               <input
                 ref={(el) => (inputRefs.current[2] = el)}
                 onKeyDown={(e) => handleEnterKey(e, 2)}
@@ -291,7 +291,7 @@ export default function CommissionCalculator() {
 
             {leadSource === "Personal Deal" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ You are allowed two free Personal Deals a year.
+                ⚠️ You are allowed two free personal deals a year.
               </div>
             )}
 
@@ -319,7 +319,7 @@ export default function CommissionCalculator() {
           {/* Right Column */}
           <div className="space-y-6">
             <div>
-              <label className="block font-medium text-blue-900 mb-1">Years with Chucktown Homes</label>
+              <label className="block font-medium text-blue-900 mb-1">How long have you been with Chucktown Homes?</label>
               <select
                 ref={(el) => (inputRefs.current[5] = el)}
                 onKeyDown={(e) => handleEnterKey(e, 5)}
