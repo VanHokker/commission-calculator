@@ -330,13 +330,13 @@ export default function CommissionCalculator() {
 
             {leadSource === "OpCity" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ A referral fee is due for the any deal within two years of claiming the lead.
+                ⚠️ A referral fee is due for any deal within two years of claiming the lead.
               </div>
             )}
 
             {leadSource === "Movoto.com" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ A referral fee is due for the any deal within two years of claiming the lead.
+                ⚠️ A referral fee is due for any deal within two years of claiming the lead.
               </div>
             )}
             
