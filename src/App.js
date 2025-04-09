@@ -41,17 +41,18 @@ export default function CommissionCalculator() {
   };
 
   const referralFees = {
-    "SOI": 0,
     "Zillow.com": (price) => price < 150000 ? 0.3 : price <= 250000 ? 0.35 : 0.4,
+    "MarketVIP": 0.3,
     "OpCity": 0.25,
     "Movoto.com": 0.175,
     "Listing.com": 0,
     "EZHomesearch.com": 0,
     "EZ Referral": 0.25,
-    "MarketVIP": 0.3,
     "OpenDoor (LWOD)": 0.35,
-    "Other": () => customReferralFee ? customReferralFee / 100 : 0,
     "Personal Deal": 0,
+    "Immediate Family Member": 0.15,
+    "SOI": 0,
+    "Other": () => customReferralFee ? customReferralFee / 100 : 0,
   };
 
   const soiSplits = {
@@ -270,7 +271,17 @@ export default function CommissionCalculator() {
                 className="w-full p-3 border rounded-xl shadow-sm"
               >
                 <option value="">Choose Lead Source</option>
-                {["SOI", "Zillow.com", "OpCity", "Movoto.com", "Listing.com", "EZHomesearch.com", "EZ Referral", "MarketVIP", "OpenDoor (LWOD)", "Other", "Personal Deal"].map((source) => (
+                {["SOI", 
+                "Zillow.com", 
+                "OpCity", 
+                "Movoto.com", 
+                "Listing.com", 
+                "EZHomesearch.com", 
+                "EZ Referral", "MarketVIP", 
+                "OpenDoor (LWOD)", 
+                "Other",
+                "Immediate Family Member", 
+                "Personal Deal"].map((source) => (
                   <option key={source} value={source}>{source}</option>
                 ))}
               </select>
