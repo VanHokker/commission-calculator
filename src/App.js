@@ -274,17 +274,18 @@ export default function CommissionCalculator() {
                 className="w-full p-3 border rounded-xl shadow-sm"
               >
                 <option value="">Choose Lead Source</option>
-                {["SOI", 
-                "Zillow.com", 
+                {["Zillow.com", 
+                "MarketVIP", 
                 "OpCity", 
                 "Movoto.com", 
+                "OpenDoor (LWOD)",
                 "Listing.com", 
                 "EZHomesearch.com", 
-                "EZ Referral", "MarketVIP", 
-                "OpenDoor (LWOD)", 
-                "Other",
+                "EZ Referral",
                 "Immediate Family Member", 
-                "Personal Deal"].map((source) => (
+                "Personal Deal",
+                "SOI",
+                "Other"].map((source) => (
                   <option key={source} value={source}>{source}</option>
                 ))}
               </select>
