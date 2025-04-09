@@ -300,7 +300,7 @@ export default function CommissionCalculator() {
                 ⚠️ You are allowed two deals at 80/15 involving immediate Family members a year.
               </div>
             )}
-
+          </div>
             {leadSource === "Other" && (
               <div>
                 <label className="block font-medium text-blue-900 mb-1">Custom Referral Fee %</label>
