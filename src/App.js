@@ -202,30 +202,6 @@ export default function CommissionCalculator() {
             ⚠️ {validationError}
           </div>
         )}
-
-        {/* Zillow Conditions */}
-        {leadSource === "Zillow.com" && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={withinTwoYearsZillow}
-                onChange={(e) => setWithinTwoYearsZillow(e.target.checked)}
-                className="accent-blue-600"
-              />
-              <label className="text-sm text-blue-900">Did you claim this lead within the last two years?</label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={firstOrSecondZillowTransaction}
-                onChange={(e) => setFirstOrSecondZillowTransaction(e.target.checked)}
-                className="accent-blue-600"
-              />
-              <label className="text-sm text-blue-900">Is this the first or second deal with this lead?</label>
-            </div>
-          </div>
-        )}
         
         <div className="grid md:grid-cols-2 gap-8">
           {/* Left Column */}
@@ -314,6 +290,29 @@ export default function CommissionCalculator() {
                 ))}
               </select>
 
+          {/* Zillow Conditions */}
+          {leadSource === "Zillow.com" && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={withinTwoYearsZillow}
+                onChange={(e) => setWithinTwoYearsZillow(e.target.checked)}
+                className="accent-blue-600"
+              />
+              <label className="text-sm text-blue-900">Did you claim this lead within the last two years?</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={firstOrSecondZillowTransaction}
+                onChange={(e) => setFirstOrSecondZillowTransaction(e.target.checked)}
+                className="accent-blue-600"
+              />
+              <label className="text-sm text-blue-900">Is this the first or second deal with this lead?</label>
+            </div>
+          </div>
+        )}
             {leadSource === "Personal Deal" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
                 ⚠️ You are allowed two free personal deals a year.
