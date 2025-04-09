@@ -127,6 +127,7 @@ export default function CommissionCalculator() {
     const afterReferral = totalCommission * (1 - referralFeeRate);
 
     let agentSplit = 0.5;
+
     if (leadSource === "SOI") {
       agentSplit = soiSplits[yearsWithCompany];
       if (yearsWithCompany === "1" && isExcludedSOI) {
@@ -134,6 +135,8 @@ export default function CommissionCalculator() {
       }
     } else if (leadSource === "Personal Deal") {
       agentSplit = 1.0;
+    } else if (leadSource === "Immediate Family Member") {
+      agentSplit = 0.85;
     }
 
     const splitLabel = `${Math.round(agentSplit * 100)}/${Math.round((1 - agentSplit) * 100)}`;
