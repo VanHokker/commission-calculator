@@ -311,7 +311,19 @@ export default function CommissionCalculator() {
                 <option value="6">I have been with CTH for more than 5 years</option>
               </select>
             </div>
-
+            {leadSource === "SOI" && yearsWithCompany === "1" && (
+              <div>
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
+                  <input
+                    type="checkbox"
+                    checked={isExcludedSOI}
+                    onChange={(e) => setIsExcludedSOI(e.target.checked)}
+                    className="accent-blue-600"
+                  />
+                  Is this lead on your Exclusion List?
+                </label>
+              </div>
+            )}
             <div>
               <label className="block font-medium text-blue-900 mb-1">Have you capped with KW this year?</label>
               <div className="flex gap-4">
