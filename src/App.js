@@ -21,6 +21,26 @@ export default function CommissionCalculator() {
   const [firstOrSecondZillowTransaction, setFirstOrSecondZillowTransaction] = useState(true);
   const [validationError, setValidationError] = useState("");
 
+  const updateCapDefaults = (office) => {
+    const capMap = {
+      "Charleston": 5000,
+      "Greenville": 5000,
+      "Savannah": 5000,
+      "Jacksonville": 5000,
+      "Atlanta": 5000,
+      "Columbia": 6600,
+      "Charlotte": 8000,
+    };
+  
+    const cap = capMap[office] ?? 5000;
+    setKwCapRemaining(cap);
+    setKwCapInput(currencyFormatter.format(cap));
+  
+    const royalty = 3000;
+    setKwRoyaltyRemaining(royalty);
+    setKwRoyaltyInput(currencyFormatter.format(royalty));
+  };
+
   const inputRefs = useRef([]);
   inputRefs.current = [];
 
@@ -212,7 +232,11 @@ export default function CommissionCalculator() {
                 ref={(el) => (inputRefs.current[0] = el)}
                 onKeyDown={(e) => handleEnterKey(e, 0)}
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => {
+                  const selected = e.target.value;
+                  setLocation(selected);
+                  updateCapDefaults(selected);
+                }}
                 className="w-full p-3 border rounded-xl shadow-sm"
               >
                 <option value="">Choose Office</option>
