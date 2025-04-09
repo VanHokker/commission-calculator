@@ -297,7 +297,7 @@ export default function CommissionCalculator() {
 
             {leadSource === "Immediate Family Member" && (
               <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ You are allowed two deals at 80/15 involving immediate Family members a year.
+                ⚠️ You are allowed two deals at 85/15 involving immediate family members a year.
               </div>
             )}
           </div>
