@@ -20,6 +20,7 @@ export default function CommissionCalculator() {
   const [withinTwoYearsZillow, setWithinTwoYearsZillow] = useState(true);
   const [firstOrSecondZillowTransaction, setFirstOrSecondZillowTransaction] = useState(true);
   const [validationError, setValidationError] = useState("");
+  const [usedBuyerCashRewards, setUsedBuyerCashRewards] = useState(false);
 
   const updateCapDefaults = (office) => {
     const capMap = {
@@ -81,8 +82,16 @@ export default function CommissionCalculator() {
       return 0.15;
     }
   },
+
+    "OpCity": (price, usedBuyerCashRewards) => {
+    let baseRate = price <= 150000 ? 0.3 : 0.35;
+    if (usedBuyerCashRewards) {
+      baseRate += 0.03;
+    }
+    return baseRate;
+  },
+
     "MarketVIP": 0.3,
-    "OpCity": 0.25,
     "Movoto.com": 0.175,
     "Listing.com": 0,
     "EZHomesearch.com": 0,
@@ -160,8 +169,8 @@ export default function CommissionCalculator() {
         : referralFees["SOI"];
     } else {
       referralFeeRate = typeof referralFees[leadSource] === "function"
-        ? referralFees[leadSource](contractPrice)
-        : referralFees[leadSource];
+  ?   referralFees[leadSource](contractPrice, usedBuyerCashRewards)
+  :   referralFees[leadSource];
     }
 
     const totalCommission = parseCommission();
@@ -352,6 +361,20 @@ export default function CommissionCalculator() {
             {leadSource === "OpCity" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
                 ⚠️ A referral fee is due for any deal within two years of claiming the lead.
+              </div>
+            )}
+
+            {leadSource === "OpCity" && (
+              <div className="mt-2">
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
+                  <input
+                    type="checkbox"
+                    checked={usedBuyerCashRewards}
+                    onChange={(e) => setUsedBuyerCashRewards(e.target.checked)}
+                    className="accent-blue-600"
+                  />
+                  Is this a lead that utilized the Buyer Cash Rewards program?
+                </label>
               </div>
             )}
 
