@@ -117,6 +117,7 @@ export default function CommissionCalculator() {
 
   const handleCalculate = () => {
     setValidationError("");
+    let referralFeeRate = 0;
 
     if (!contractPrice || contractPrice <= 0) {
       setValidationError("Please enter a valid contract price.");
