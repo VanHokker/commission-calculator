@@ -62,16 +62,25 @@ export default function CommissionCalculator() {
 
   const referralFees = {
     "Zillow.com": (price, office) => {
-      if (office === "Charleston") {
-        if (price >= 400000) return 0.4;
-        if (price >= 300000) return 0.35;
-        if (price >= 200000) return 0.3;
-        if (price >= 100000) return 0.25;
-        return 0.15;
-      }
-      // Default Zillow tier (non-Charleston)
-      return price < 150000 ? 0.3 : price <= 250000 ? 0.35 : 0.4;
-    },
+      const groupOne = ["Columbia", "Greenville", "Savannah", "Jacksonville"];
+    const groupTwo = ["Charleston", "Charlotte", "Atlanta"];
+
+    if (groupOne.includes(office)) {
+      if (price >= 300000) return 0.4;
+      if (price >= 225000) return 0.35;
+      if (price >= 150000) return 0.3;
+      if (price >= 75000) return 0.25;
+      return 0.15;
+    }
+
+    if (groupTwo.includes(office)) {
+      if (price >= 400000) return 0.4;
+      if (price >= 300000) return 0.35;
+      if (price >= 200000) return 0.3;
+      if (price >= 100000) return 0.25;
+      return 0.15;
+    }
+  },
     "MarketVIP": 0.3,
     "OpCity": 0.25,
     "Movoto.com": 0.175,
