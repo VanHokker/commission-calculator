@@ -177,14 +177,15 @@ export default function CommissionCalculator() {
       referralFeeRate = qualifyForZillowFee
         ? referralFees["Zillow.com"](contractPrice, location)
         : referralFees["SOI"];
+    } else if (leadSource === "OpCity") {
+      referralFeeRate = referralFees["OpCity"](contractPrice, usedBuyerCashRewards);
+    } else if (leadSource === "OpenDoor (LWOD)") {
+      referralFeeRate = referralFees["OpenDoor (LWOD)"](contractPrice, isSellerLWOD, parseCommission(), isBuyerLWOD);
     } else {
-      const totalCommission = parseCommission();
-
-      referralFeeRate = typeof referralFees[leadSource] === "function"
-        ? leadSource === "OpenDoor (LWOD)"
-          ? referralFees[leadSource](contractPrice, isSellerLWOD, totalCommission, isBuyerLWOD)
-          : referralFees[leadSource](contractPrice, usedBuyerCashRewards)
-        : referralFees[leadSource];
+      const feeLogic = referralFees[leadSource];
+      referralFeeRate = typeof feeLogic === "function"
+        ? feeLogic(contractPrice)
+        : feeLogic;
     }
 
     const totalCommission = parseCommission();
