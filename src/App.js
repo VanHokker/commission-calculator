@@ -271,6 +271,7 @@ export default function CommissionCalculator() {
         )}
         
         <div className="grid md:grid-cols-2 gap-8">
+
           {/* Left Column */}
           <div className="space-y-6">
             <div>
@@ -581,7 +582,9 @@ export default function CommissionCalculator() {
             <p><strong>Agent Gross:</strong> {currencyFormatter.format(result.agentGross)}</p>
             <p><strong>KW Commission:</strong> {currencyFormatter.format(result.kwCommission)}</p>
             <p><strong>KW Royalty:</strong> {currencyFormatter.format(result.kwRoyalty)}</p>
-            <p className="text-lg font-bold text-green-700 mt-4">Net Income: {currencyFormatter.format(result.netIncome)}</p>
+            <p className="text-lg font-bold text-green-700 mt-4">
+              Net Income: {currencyFormatter.format(result.netIncome)}
+            </p>
 
             <div className="mt-4">
               <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
@@ -602,5 +605,6 @@ export default function CommissionCalculator() {
         )}
       </div>
     </div>
+  </div>
   );
 }
