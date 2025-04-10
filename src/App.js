@@ -21,6 +21,8 @@ export default function CommissionCalculator() {
   const [firstOrSecondZillowTransaction, setFirstOrSecondZillowTransaction] = useState(true);
   const [validationError, setValidationError] = useState("");
   const [usedBuyerCashRewards, setUsedBuyerCashRewards] = useState(false);
+  const [isSellerLWOD, setIsSellerLWOD] = useState(false);
+  const [isBuyerLWOD, setIsBuyerLWOD] = useState(false);
 
   const updateCapDefaults = (office) => {
     const capMap = {
@@ -91,12 +93,16 @@ export default function CommissionCalculator() {
     return baseRate;
   },
 
+    "OpenDoor (LWOD)": (price, isSeller, grossCommission, isBuyer) => {
+    if (isSeller) return price * 0.0125 / grossCommission; // Convert to a % of commission
+    if (isBuyer) return 0.3;
+    return 0; // Default fallback
+  },
     "MarketVIP": 0.3,
     "Movoto.com": 0.175,
     "Listing.com": 0,
     "EZHomesearch.com": 0,
     "EZ Referral": 0.25,
-    "OpenDoor (LWOD)": 0.35,
     "Personal Deal": 0,
     "Immediate Family Member": 0.15,
     "SOI": 0,
@@ -161,16 +167,24 @@ export default function CommissionCalculator() {
       setValidationError("Please enter a valid custom referral fee.");
       return;
     }
-
+    if (leadSource === "OpenDoor (LWOD)" && !isSellerLWOD && !isBuyerLWOD) {
+      setValidationError("Please specify if this is a Seller or Buyer lead for OpenDoor (LWOD).");
+      return;
+    }
+    
     if (leadSource === "Zillow.com") {
       const qualifyForZillowFee = withinTwoYearsZillow && firstOrSecondZillowTransaction;
       referralFeeRate = qualifyForZillowFee
         ? referralFees["Zillow.com"](contractPrice, location)
         : referralFees["SOI"];
     } else {
+      const totalCommission = parseCommission();
+
       referralFeeRate = typeof referralFees[leadSource] === "function"
-  ?   referralFees[leadSource](contractPrice, usedBuyerCashRewards)
-  :   referralFees[leadSource];
+        ? leadSource === "OpenDoor (LWOD)"
+          ? referralFees[leadSource](contractPrice, isSellerLWOD, totalCommission, isBuyerLWOD)
+          : referralFees[leadSource](contractPrice, usedBuyerCashRewards)
+        : referralFees[leadSource];
     }
 
     const totalCommission = parseCommission();
@@ -402,6 +416,36 @@ export default function CommissionCalculator() {
                   onChange={(e) => setCustomReferralFee(Number(e.target.value))}
                   className="w-full p-3 border rounded-xl shadow-sm"
                 />
+              </div>
+            )}
+
+            {leadSource === "OpenDoor (LWOD)" && (
+              <div className="mt-2 space-y-2">
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
+                  <input
+                    type="checkbox"
+                    checked={isSellerLWOD}
+                    onChange={(e) => {
+                      setIsSellerLWOD(e.target.checked);
+                      if (e.target.checked) setIsBuyerLWOD(false);
+                    }}
+                    className="accent-blue-600"
+                  />
+                  Is this a Seller lead?
+                </label>
+
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
+                  <input
+                    type="checkbox"
+                    checked={isBuyerLWOD}
+                    onChange={(e) => {
+                      setIsBuyerLWOD(e.target.checked);
+                      if (e.target.checked) setIsSellerLWOD(false);
+                    }}
+                    className="accent-blue-600"
+                  />
+                  Is this a Buyer lead?
+                </label>
               </div>
             )}
           </div>
