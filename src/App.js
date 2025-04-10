@@ -61,7 +61,17 @@ export default function CommissionCalculator() {
   };
 
   const referralFees = {
-    "Zillow.com": (price) => price < 150000 ? 0.3 : price <= 250000 ? 0.35 : 0.4,
+    "Zillow.com": (price, office) => {
+      if (office === "Charleston") {
+        if (price >= 400000) return 0.4;
+        if (price >= 300000) return 0.35;
+        if (price >= 200000) return 0.3;
+        if (price >= 100000) return 0.25;
+        return 0.15;
+      }
+      // Default Zillow tier (non-Charleston)
+      return price < 150000 ? 0.3 : price <= 250000 ? 0.35 : 0.4;
+    },
     "MarketVIP": 0.3,
     "OpCity": 0.25,
     "Movoto.com": 0.175,
@@ -133,10 +143,11 @@ export default function CommissionCalculator() {
       return;
     }
 
-    let referralFeeRate;
     if (leadSource === "Zillow.com") {
       const qualifyForZillowFee = withinTwoYearsZillow && firstOrSecondZillowTransaction;
-      referralFeeRate = qualifyForZillowFee ? referralFees["Zillow.com"](contractPrice) : referralFees["SOI"];
+      referralFeeRate = qualifyForZillowFee
+        ? referralFees["Zillow.com"](contractPrice, location)
+        : referralFees["SOI"];
     } else {
       referralFeeRate = typeof referralFees[leadSource] === "function"
         ? referralFees[leadSource](contractPrice)
