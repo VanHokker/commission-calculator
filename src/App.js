@@ -420,7 +420,7 @@ export default function CommissionCalculator() {
             )}
 
             {leadSource === "OpenDoor (LWOD)" && (
-              <div className="mt-2 space-y-2">
+              <div className="mt-2 flex gap-6 flex-wrap">
                 <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
                   <input
                     type="checkbox"
@@ -448,7 +448,6 @@ export default function CommissionCalculator() {
                 </label>
               </div>
             )}
-          </div>
 
           {/* Right Column */}
           <div className="space-y-6">
@@ -566,7 +565,13 @@ export default function CommissionCalculator() {
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
             <h2 className="text-xl font-bold text-blue-900 mb-4">Your Commission Summary</h2>
             <p><strong>Total Commission:</strong> {currencyFormatter.format(result.totalCommission)}</p>
-            <p><strong>Referral Fee (%):</strong> {(result.referralFeeRate * 100).toFixed(1)}%</p>
+            <p>
+              <strong>Referral Fee (%):</strong>{" "}
+              {(result.referralFeeRate * 100).toFixed(1)}%
+              {leadSource === "OpenDoor (LWOD)" && isSellerLWOD && (
+                <span className="text-sm text-gray-600 ml-2">(1.25% of GCI)</span>
+              )}
+            </p>
             <p><strong>After Referral:</strong> {currencyFormatter.format(result.afterReferral)}</p>
             {location === "Atlanta" && (
               <p><strong>FMLS Fee (0.12%):</strong> {currencyFormatter.format(result.fmlsFee)}</p>
