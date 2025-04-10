@@ -450,6 +450,7 @@ export default function CommissionCalculator() {
                 </label>
               </div>
             )}
+          </div>
 
           {/* Right Column */}
           <div className="space-y-6">
@@ -605,6 +606,5 @@ export default function CommissionCalculator() {
         )}
       </div>
     </div>
-  </div>
   );
 }
