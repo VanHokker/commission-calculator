@@ -621,8 +621,8 @@ export default function CommissionCalculator() {
                       const estimatedCapPaid = agentGross * 0.3;
                       const estimatedRoyaltyPaid = agentGross * 0.06;
 
-                      const newCapRemaining = Math.max(kwCapRemaining - estimatedCapPaid, 0);
-                      const newRoyaltyRemaining = Math.max(kwRoyaltyRemaining - estimatedRoyaltyPaid, 0);
+                      const newCapRemaining = Math.max(originalKwCap - estimatedCapPaid, 0);
+                      const newRoyaltyRemaining = Math.max(originalKwRoyalty - estimatedRoyaltyPaid, 0);
 
                       setKwCapRemaining(newCapRemaining);
                       setKwRoyaltyRemaining(newRoyaltyRemaining);
@@ -635,13 +635,16 @@ export default function CommissionCalculator() {
                       setVolumeInput(raw ? "$" + Number(raw).toLocaleString() : "");
                     }}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    We'll estimate how much you've probably paid into your KW Cap and Royalty based on a 2.75% GCI rate, 25% referral, and 50/50 split.
+                  <p className="text-xs text-gray-500 mt-1 italic">
+                    We'll estimate your KW Cap contributions using:
+                    <span className="font-medium"> 2.75% GCI</span>, 
+                    <span className="font-medium"> 25% referral</span>, 
+                    <span className="font-medium"> 50/50 split</span>.
                   </p>
                 </div>
               </>
             )}
-            
+            </div> {/* ✅ Close the right column */}     
         <button
           onClick={handleCalculate}
           ref={(el) => (inputRefs.current[10] = el)}
