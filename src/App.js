@@ -597,7 +597,7 @@ export default function CommissionCalculator() {
             <p><strong>Total Commission:</strong> {currencyFormatter.format(result.totalCommission)}</p>
 
             <p>
-              <strong>Referral Fee (% - Lead Source):</strong>{" "}
+              <strong>Referral Fee:</strong>{" "}
               {(result.leadSourceReferralRate * 100).toFixed(1)}%
               {leadSource === "OpenDoor (LWOD)" && isSellerLWOD && (
                 <span className="text-sm text-gray-600 ml-2">(1.25% of GCI)</span>
@@ -606,7 +606,7 @@ export default function CommissionCalculator() {
 
             {mentorFeeDue && (
               <p>
-                <strong>Mentor Referral (10%):</strong>{" "}
+                <strong>Mentor Referral Fee (10%):</strong>{" "}
                 {currencyFormatter.format(result.totalCommission * result.mentorReferralRate)}
               </p>
             )}
@@ -633,11 +633,11 @@ export default function CommissionCalculator() {
                   checked={includeTaxPlanning}
                   onChange={(e) => setIncludeTaxPlanning(e.target.checked)}
                 />
-                Plan for income tax?
+                Would you like to plan for when you file your Income Taxes next year?
               </label>
               {includeTaxPlanning && (
                 <p className="mt-2 text-blue-600 font-semibold">
-                  Suggested Tax Set-Aside (20%): {currencyFormatter.format(result.netIncome * 0.2)}
+                  Suggested amount to set aside (20%): {currencyFormatter.format(result.netIncome * 0.2)}
                 </p>
               )}
             </div>
