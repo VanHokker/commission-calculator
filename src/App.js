@@ -379,7 +379,7 @@ export default function CommissionCalculator() {
 
             {leadSource === "EZHomeSearch.com" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ No Referral Fee. Chucktown Homes pays for these leads upfront.
+                ⚠️ No referral fee. Chucktown Homes pays for these leads upfront.
               </div>
             )}
             
@@ -391,13 +391,13 @@ export default function CommissionCalculator() {
 
             {leadSource === "Listing.com" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ No Referral Fee. Chucktown Homes pays for these leads upfront.
+                ⚠️ No referral ree. Chucktown Homes pays for these leads upfront.
               </div>
             )}
 
             {leadSource === "ReferralExchange" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ No Referral Fee. Chucktown Homes pays for these leads upfront.
+                ⚠️ A referral fee is due involving the initial transaction, as well as any qualifying transaction that occurs within 10 days on the previous. For example, if the lead buys a subsequent home and uses the proceeds of the inital sale or vice versa.
               </div>
             )}
 
