@@ -607,6 +607,11 @@ export default function CommissionCalculator() {
             <p className="text-lg font-bold text-green-700 mt-4">
               Net Income: {currencyFormatter.format(result.netIncome)}
             </p>
+            {mentorFeeDue && (
+              <p>
+                <strong>Mentor Referral (10%):</strong> {currencyFormatter.format(result.totalCommission * 0.1)}
+              </p>
+            )}
 
             <div className="mt-4">
               <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
