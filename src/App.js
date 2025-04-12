@@ -256,10 +256,10 @@ export default function CommissionCalculator() {
   });
 
   const handlePriceChange = (e) => {
-    const raw = e.target.value.replace(/[^\d.]/g, "");
+    const raw = e.target.value.replace(/[^\d]/g, "");
     const parsed = Number(raw) * 1000;
     setContractPrice(parsed);
-    setPriceInput(currencyFormatter.format(contractPrice));  
+    setPriceInput(raw ? currencyFormatter.format(parsed) : "");
   };
 
   const handlePriceBlur = () => {
@@ -321,21 +321,17 @@ export default function CommissionCalculator() {
             </div>
 
             <div>
-              <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
-              <input
-                ref={(el) => (inputRefs.current[1] = el)}
-                onKeyDown={(e) => handleEnterKey(e, 1)}
-                type="text"
-                value={priceInput}
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/[^\d.]/g, "");
-                  setContractPrice(Number(raw));
-                  setPriceInput(e.target.value);
-                }}
-                onBlur={() => setPriceInput(isNaN(contractPrice) ? "" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(contractPrice))}
-                className="w-full p-3 border rounded-xl shadow-sm"
-                placeholder="$0.00"
-              />
+            <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
+            <input
+              ref={(el) => (inputRefs.current[1] = el)}
+              onKeyDown={(e) => handleEnterKey(e, 1)}
+              type="text"
+              value={priceInput}
+              onChange={handlePriceChange}
+              onBlur={handlePriceBlur}
+              className="w-full p-3 border rounded-xl shadow-sm"
+              placeholder="$0.00"
+            />
             </div>
 
             <div>
@@ -606,28 +602,27 @@ export default function CommissionCalculator() {
                     placeholder="$0.00"
                     className="w-full p-3 border rounded-xl shadow-sm"
                     onChange={(e) => {
-                      const raw = e.target.value.replace(/[^\d.]/g, "");
-                      setVolumeInput(raw ? "$" + Number(raw).toLocaleString() : "");
-
+                      const raw = e.target.value.replace(/[^\d]/g, "");
+                      const padded = raw ? (Number(raw) * 1000) : 0;
+                      setVolumeInput(currencyFormatter.format(padded));
+                    
                       if (!raw) {
                         updateCapDefaults(location);
                         return;
                       }
-
-                      const rawVolume = Number(raw) * 1000;
-                      const estimatedGCI = rawVolume * 0.0275;
+                    
+                      const estimatedGCI = padded * 0.0275;
                       const afterReferral = estimatedGCI * 0.75;
                       const agentGross = afterReferral * 0.5;
-
+                    
                       const estimatedCapPaid = agentGross * 0.3;
                       const estimatedRoyaltyPaid = agentGross * 0.06;
-
+                    
                       const newCapRemaining = Math.max(originalKwCap - estimatedCapPaid, 0);
                       const newRoyaltyRemaining = Math.max(originalKwRoyalty - estimatedRoyaltyPaid, 0);
-
+                    
                       setKwCapRemaining(newCapRemaining);
                       setKwRoyaltyRemaining(newRoyaltyRemaining);
-
                       setKwCapInput(currencyFormatter.format(newCapRemaining));
                       setKwRoyaltyInput(currencyFormatter.format(newRoyaltyRemaining));
                     }}
@@ -687,7 +682,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.1</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.2</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
