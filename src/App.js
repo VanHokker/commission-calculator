@@ -360,8 +360,9 @@ export default function CommissionCalculator() {
                 "Movoto.com", 
                 "OpenDoor (LWOD)",
                 "Listing.com", 
-                "EZHomesearch.com", 
+                "EZHomeSearch.com", 
                 "EZ Referral",
+                "ReferralExchange",
                 "Immediate Family Member", 
                 "Personal Deal",
                 "SOI",
@@ -389,6 +390,12 @@ export default function CommissionCalculator() {
             )}
 
             {leadSource === "Listing.com" && (
+             <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
+                ⚠️ No Referral Fee. Chucktown Homes pays for these leads upfront.
+              </div>
+            )}
+
+            {leadSource === "ReferralExchange" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
                 ⚠️ No Referral Fee. Chucktown Homes pays for these leads upfront.
               </div>
