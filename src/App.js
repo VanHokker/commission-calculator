@@ -376,6 +376,24 @@ export default function CommissionCalculator() {
               </div>
             )}
 
+            {leadSource === "EZHomeSearch.com" && (
+             <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
+                ⚠️ No Referral Fee. Chucktown Homes pays for these leads upfront.
+              </div>
+            )}
+            
+            {leadSource === "EZ Referral" && (
+             <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
+                ⚠️ A referral fee is due for the first transaction only.
+              </div>
+            )}
+
+            {leadSource === "Listing.com" && (
+             <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
+                ⚠️ No Referral Fee. Chucktown Homes pays for these leads upfront.
+              </div>
+            )}
+
             {leadSource === "Zillow.com" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
                 ⚠️ A referral fee is due for the first two deals within two years of claiming the lead.
