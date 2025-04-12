@@ -23,6 +23,7 @@ export default function CommissionCalculator() {
   const [usedBuyerCashRewards, setUsedBuyerCashRewards] = useState(false);
   const [isSellerLWOD, setIsSellerLWOD] = useState(false);
   const [isBuyerLWOD, setIsBuyerLWOD] = useState(false);
+  const [mentorFeeDue, setMentorFeeDue] = useState(false);
 
   const updateCapDefaults = (office) => {
     const capMap = {
@@ -186,6 +187,8 @@ export default function CommissionCalculator() {
       referralFeeRate = typeof feeLogic === "function"
         ? feeLogic(contractPrice)
         : feeLogic;
+    } if (yearsWithCompany === "1" && mentorFeeDue) {
+      referralFeeRate += 0.10;
     }
 
     const totalCommission = parseCommission();
@@ -483,7 +486,25 @@ export default function CommissionCalculator() {
                   />
                   Is this lead on your Exclusion List?
                 </label>
-              </div>
+              </div> 
+            )}
+            {yearsWithCompany === "1" && (
+              <>
+                <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3">
+                  ⚠️ If you have been assigned a Mentor, the Mentor should be expected to receive a 10% referral on your first three deals.
+                </div>
+                <div>
+                  <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900 mt-2">
+                    <input
+                      type="checkbox"
+                      checked={mentorFeeDue}
+                      onChange={(e) => setMentorFeeDue(e.target.checked)}
+                      className="accent-blue-600"
+                    />
+                    Is there a Mentor Fee due?
+                  </label>
+                </div>
+              </>
             )}
             <div>
               <label className="block font-medium text-blue-900 mb-1">Have you capped with KW this year?</label>
