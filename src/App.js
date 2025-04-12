@@ -639,7 +639,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-center mt-1">Version 7.1.2</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 7.1.3</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
