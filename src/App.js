@@ -641,6 +641,39 @@ export default function CommissionCalculator() {
                     <span className="font-medium"> 25% referral</span>, 
                     <span className="font-medium"> 50/50 split</span>.
                   </p>
+                 </div>
+                <div className="mt-4 space-y-4">
+                  {/* KW Cap Progress */}
+                  <div>
+                    <div className="flex justify-between text-sm mb-1 text-blue-900 font-medium">
+                      <span>KW Cap</span>
+                      <span>{currencyFormatter.format(originalKwCap - kwCapRemaining)} / {currencyFormatter.format(originalKwCap)}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                      <div
+                        className="bg-blue-600 h-4 transition-all"
+                        style={{
+                          width: `${Math.min(100, ((originalKwCap - kwCapRemaining) / originalKwCap) * 100)}%`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* KW Royalty Progress */}
+                  <div>
+                    <div className="flex justify-between text-sm mb-1 text-blue-900 font-medium">
+                      <span>KW Royalty</span>
+                      <span>{currencyFormatter.format(originalKwRoyalty - kwRoyaltyRemaining)} / {currencyFormatter.format(originalKwRoyalty)}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                      <div
+                        className="bg-green-500 h-4 transition-all"
+                        style={{
+                          width: `${Math.min(100, ((originalKwRoyalty - kwRoyaltyRemaining) / originalKwRoyalty) * 100)}%`
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </>
             )}
@@ -653,7 +686,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 7.9.7</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.0</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
