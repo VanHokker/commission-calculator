@@ -144,6 +144,7 @@ export default function CommissionCalculator() {
     setValidationError("");
     let referralFeeRate = 0;
     let mentorReferralRate = 0;
+    let leadSourceReferralRate = 0;
 
     if (!contractPrice || contractPrice <= 0) {
       setValidationError("Please enter a valid contract price.");
