@@ -257,8 +257,9 @@ export default function CommissionCalculator() {
 
   const handlePriceChange = (e) => {
     const raw = e.target.value.replace(/[^\d.]/g, "");
-    setContractPrice(Number(raw));
-    setPriceInput(e.target.value);
+    const parsed = Number(raw) * 1000;
+    setContractPrice(parsed);
+    setPriceInput(currencyFormatter.format(contractPrice));  
   };
 
   const handlePriceBlur = () => {
@@ -613,7 +614,7 @@ export default function CommissionCalculator() {
                         return;
                       }
 
-                      const rawVolume = Number(raw);
+                      const rawVolume = Number(raw) * 1000;
                       const estimatedGCI = rawVolume * 0.0275;
                       const afterReferral = estimatedGCI * 0.75;
                       const agentGross = afterReferral * 0.5;
@@ -632,7 +633,7 @@ export default function CommissionCalculator() {
                     }}
                     onBlur={() => {
                       const raw = volumeInput.replace(/[^\d.]/g, "");
-                      setVolumeInput(raw ? "$" + Number(raw).toLocaleString() : "");
+                      setVolumeInput(raw ? "$" + Number(raw * 1000).toLocaleString() : "");
                     }}
                   />
                   <p className="text-xs text-gray-500 mt-1 italic">
@@ -686,7 +687,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.0</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.1</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
