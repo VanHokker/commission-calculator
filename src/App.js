@@ -255,19 +255,15 @@ export default function CommissionCalculator() {
     currency: "USD",
   });
 
-  const handlePriceChange = (e) => {
+    const handlePriceChange = (e) => {
     const raw = e.target.value.replace(/[^\d]/g, "");
-    const parsed = Number(raw) * 1000;
-    setContractPrice(parsed);
-    setPriceInput(raw ? currencyFormatter.format(parsed) : "");
+    const padded = raw ? Number(raw) * 1000 : 0;
+    setContractPrice(padded);
+    setPriceInput(raw); // just digits
   };
 
   const handlePriceBlur = () => {
-    setPriceInput(
-      isNaN(contractPrice)
-        ? ""
-        : currencyFormatter.format(contractPrice)
-    );
+    setPriceInput(priceInput); // no change needed unless you want to trim trailing zeros etc.
   };
 
   const handleKwCapChange = (e) => {
@@ -326,7 +322,7 @@ export default function CommissionCalculator() {
               ref={(el) => (inputRefs.current[1] = el)}
               onKeyDown={(e) => handleEnterKey(e, 1)}
               type="text"
-              value={priceInput}
+              value={priceInput ? currencyFormatter.format(Number(priceInput) * 1000) : ""}
               onChange={handlePriceChange}
               onBlur={handlePriceBlur}
               className="w-full p-3 border rounded-xl shadow-sm"
@@ -682,7 +678,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.2</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.3</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
