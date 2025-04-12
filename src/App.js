@@ -25,6 +25,7 @@ export default function CommissionCalculator() {
   const [isBuyerLWOD, setIsBuyerLWOD] = useState(false);
   const [mentorFeeDue, setMentorFeeDue] = useState(false);
   const [referredByAgent, setReferredByAgent] = useState(false);
+  const [volumeInput, setVolumeInput] = useState("");
 
   const updateCapDefaults = (office) => {
     const capMap = {
@@ -593,39 +594,102 @@ export default function CommissionCalculator() {
               </div>
             </div>
 
-            {!hasCapped && hasCapped !== null && (
+            {hasCapped === false && (
               <>
                 <div>
-                  <label className="block font-medium text-blue-900 mb-1">KW Cap Remaining</label>
+                  <label className="block font-medium text-blue-900 mb-1">
+                    How much volume have you closed so far this year?
+                  </label>
                   <input
-                    ref={(el) => (inputRefs.current[8] = el)}
-                    onKeyDown={(e) => handleEnterKey(e, 8)}
                     type="text"
-                    value={kwCapInput}
+                    value={volumeInput}
+                    placeholder="$0.00"
+                    className="w-full p-3 border rounded-xl shadow-sm"
                     onChange={(e) => {
                       const raw = e.target.value.replace(/[^\d.]/g, "");
-                      const value = Number(raw);
-                      setKwCapRemaining(value);
-                      setKwCapInput(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value));
+                      setVolumeInput(raw ? "$" + Number(raw).toLocaleString() : "");
+
+                      if (!raw) {
+                        updateCapDefaults(location);
+                        return;
+                      }
+
+                      const rawVolume = Number(raw);
+                      const estimatedGCI = rawVolume * 0.0275;
+                      const afterReferral = estimatedGCI * 0.75;
+                      const agentGross = afterReferral * 0.5;
+
+                      const estimatedCapPaid = agentGross * 0.3;
+                      const estimatedRoyaltyPaid = agentGross * 0.06;
+
+                      const newCapRemaining = Math.max(kwCapRemaining - estimatedCapPaid, 0);
+                      const newRoyaltyRemaining = Math.max(kwRoyaltyRemaining - estimatedRoyaltyPaid, 0);
+
+                      setKwCapRemaining(newCapRemaining);
+                      setKwRoyaltyRemaining(newRoyaltyRemaining);
+
+                      setKwCapInput(currencyFormatter.format(newCapRemaining));
+                      setKwRoyaltyInput(currencyFormatter.format(newRoyaltyRemaining));
                     }}
-                    className="w-full p-3 border rounded-xl shadow-sm"
+                    onBlur={() => {
+                      const raw = volumeInput.replace(/[^\d.]/g, "");
+                      setVolumeInput(raw ? "$" + Number(raw).toLocaleString() : "");
+                    }}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    We'll estimate how much you've probably paid into your KW Cap and Royalty based on a 2.75% GCI rate, 25% referral, and 50/50 split.
+                  </p>
                 </div>
+              </>
+            )}
+            {hasCapped === false && (
+              <>
                 <div>
-                  <label className="block font-medium text-blue-900 mb-1">KW Royalty Remaining</label>
+                  <label className="block font-medium text-blue-900 mb-1">
+                    How much volume have you closed so far this year?
+                  </label>
                   <input
-                    ref={(el) => (inputRefs.current[9] = el)}
-                    onKeyDown={(e) => handleEnterKey(e, 9)}
                     type="text"
-                    value={kwRoyaltyInput}
+                    value={volumeInput}
+                    placeholder="$0.00"
+                    className="w-full p-3 border rounded-xl shadow-sm"
                     onChange={(e) => {
                       const raw = e.target.value.replace(/[^\d.]/g, "");
-                      const value = Number(raw);
-                      setKwRoyaltyRemaining(value);
-                      setKwRoyaltyInput(new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value));
+                      setVolumeInput(raw ? "$" + Number(raw).toLocaleString() : "");
+
+                      if (!raw) {
+                        updateCapDefaults(location);
+                        return;
+                      }
+
+                      const rawVolume = Number(raw);
+                      const estimatedGCI = rawVolume * 0.0275;
+                      const afterReferral = estimatedGCI * 0.75;
+                      const agentGross = afterReferral * 0.5;
+
+                      const estimatedCapPaid = agentGross * 0.3;
+                      const estimatedRoyaltyPaid = agentGross * 0.06;
+
+                      const newCapRemaining = Math.max(kwCapRemaining - estimatedCapPaid, 0);
+                      const newRoyaltyRemaining = Math.max(kwRoyaltyRemaining - estimatedRoyaltyPaid, 0);
+
+                      setKwCapRemaining(newCapRemaining);
+                      setKwRoyaltyRemaining(newRoyaltyRemaining);
+
+                      setKwCapInput(currencyFormatter.format(newCapRemaining));
+                      setKwRoyaltyInput(currencyFormatter.format(newRoyaltyRemaining));
                     }}
-                    className="w-full p-3 border rounded-xl shadow-sm"
+                    onBlur={() => {
+                      const raw = volumeInput.replace(/[^\d.]/g, "");
+                      setVolumeInput(raw ? "$" + Number(raw).toLocaleString() : "");
+                    }}
                   />
+                  <p className="text-xs text-gray-500 mt-1 italic">
+                    We'll estimate your KW Cap contributions using:
+                    <span className="font-medium"> 2.75% GCI</span>, 
+                    <span className="font-medium"> 25% referral</span>, 
+                    <span className="font-medium"> 50/50 split</span>.
+                  </p>
                 </div>
               </>
             )}
