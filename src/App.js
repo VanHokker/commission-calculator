@@ -397,7 +397,7 @@ export default function CommissionCalculator() {
 
             {leadSource === "ReferralExchange" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
-                ⚠️ A referral fee is due involving the initial transaction, as well as any qualifying transaction that occurs within 10 days on the previous. For example, if the lead buys a subsequent home and uses the proceeds of the inital sale or vice versa.
+              ⚠️ A referral fee applies to the initial transaction, as well as any subsequent transaction occurring within 10 days of the previous one. For example, if the client sells a home and then uses the proceeds to purchase another—or vice versa—both deals would qualify.
               </div>
             )}
 
