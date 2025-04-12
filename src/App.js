@@ -690,6 +690,7 @@ export default function CommissionCalculator() {
                   Suggested amount to set aside (20%): {currencyFormatter.format(result.netIncome * 0.2)}
                 </p>
               )}
+              <p className="text-xs text-gray-400 text-center mt-4">Version 7.7</p>
             </div>
           </div>
         )}
