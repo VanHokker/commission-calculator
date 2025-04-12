@@ -545,19 +545,19 @@ export default function CommissionCalculator() {
             )}
             {yearsWithCompany === "1" && (
               <>
-                <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3">
-                  ⚠️ If you have been assigned a Mentor, the Mentor should be expected to receive a 10% referral on your first three deals.
-                </div>
                 <div>
-                  <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900 mt-2">
+                  <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
                     <input
                       type="checkbox"
                       checked={mentorFeeDue}
                       onChange={(e) => setMentorFeeDue(e.target.checked)}
                       className="accent-blue-600"
                     />
-                    Is there a Mentor Fee due?
+                    Mentor fee due?
                   </label>
+                </div>
+                <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
+                  ⚠️ If you have been assigned a Mentor, the Mentor should be expected to receive a 10% referral on your first three deals.
                 </div>
               </>
             )}
@@ -653,7 +653,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 7.9.6</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 7.9.7</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
