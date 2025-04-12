@@ -255,11 +255,10 @@ export default function CommissionCalculator() {
     currency: "USD",
   });
 
-    const handlePriceChange = (e) => {
-    const raw = e.target.value.replace(/[^\d]/g, "");
-    const padded = raw ? Number(raw) * 1000 : 0;
-    setContractPrice(padded);
-    setPriceInput(raw); // just digits
+  const handlePriceChange = (e) => {
+    const raw = e.target.value.replace(/[^\d]/g, ""); // Keep only digits
+    setPriceInput(raw); // Store raw string like "3", "33", "333"
+    setContractPrice(Number(raw) * 1000); // Set actual numeric value
   };
 
   const handlePriceBlur = () => {
@@ -322,7 +321,7 @@ export default function CommissionCalculator() {
               ref={(el) => (inputRefs.current[1] = el)}
               onKeyDown={(e) => handleEnterKey(e, 1)}
               type="text"
-              value={priceInput ? currencyFormatter.format(Number(priceInput) * 1000) : ""}
+              value={priceInput ? currencyFormatter.format(parseInt(priceInput) * 1000) : ""}
               onChange={handlePriceChange}
               onBlur={handlePriceBlur}
               className="w-full p-3 border rounded-xl shadow-sm"
@@ -678,7 +677,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.3</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.4</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
