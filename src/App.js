@@ -281,7 +281,6 @@ export default function CommissionCalculator() {
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl p-8 space-y-8">
         <h1 className="text-4xl font-extrabold text-blue-900 text-center">Commission Calculator</h1>
-        <p className="text-sm text-gray-400 text-center mt-1">Version 7.1.1</p>
         <p className="text-center text-gray-500">The following calculation is simply an estimation. Please contact your Team Leader to confirm results.</p>
 
         {validationError && (
@@ -640,6 +639,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
+        <p className="text-sm text-gray-400 text-center mt-1">Version 7.1.2</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
