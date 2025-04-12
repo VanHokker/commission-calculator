@@ -24,6 +24,7 @@ export default function CommissionCalculator() {
   const [isSellerLWOD, setIsSellerLWOD] = useState(false);
   const [isBuyerLWOD, setIsBuyerLWOD] = useState(false);
   const [mentorFeeDue, setMentorFeeDue] = useState(false);
+  const [referredByAgent, setReferredByAgent] = useState(false);
 
   const updateCapDefaults = (office) => {
     const capMap = {
@@ -98,6 +99,12 @@ export default function CommissionCalculator() {
     if (isSeller) return price * 0.0125 / grossCommission; // Convert to a % of commission
     if (isBuyer) return 0.3;
     return 0; // Default fallback
+  },
+
+    "ReferralExchange": (price, referredByAgent) => {
+    if (referredByAgent) return 0.35;
+    if (price < 150000) return 0.25;
+    return 0.3;
   },
     "MarketVIP": 0.3,
     "Movoto.com": 0.175,
@@ -186,9 +193,13 @@ export default function CommissionCalculator() {
       leadSourceReferralRate = referralFees["OpenDoor (LWOD)"](contractPrice, isSellerLWOD, parseCommission(), isBuyerLWOD);
     } else {
       const feeLogic = referralFees[leadSource];
-      leadSourceReferralRate = typeof feeLogic === "function"
-        ? feeLogic(contractPrice)
-        : feeLogic;
+      if (leadSource === "ReferralExchange") {
+        leadSourceReferralRate = referralFees["ReferralExchange"](contractPrice, referredByAgent);
+      } else {
+        leadSourceReferralRate = typeof feeLogic === "function"
+          ? feeLogic(contractPrice)
+          : feeLogic;
+      }
     }
     
     if (yearsWithCompany === "1" && mentorFeeDue) {
@@ -398,6 +409,20 @@ export default function CommissionCalculator() {
             {leadSource === "ReferralExchange" && (
              <div className="bg-yellow-100 text-yellow-800 text-sm border border-yellow-300 rounded-lg px-4 py-3 mt-2">
               ⚠️ A referral fee applies to the initial transaction, as well as any subsequent transaction occurring within 10 days of the previous one. For example, if the client sells a home and then uses the proceeds to purchase another—or vice versa—both deals would qualify.
+              </div>
+            )}
+
+            {leadSource === "ReferralExchange" && (
+              <div className="mt-2">
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
+                  <input
+                    type="checkbox"
+                    checked={referredByAgent}
+                    onChange={(e) => setReferredByAgent(e.target.checked)}
+                    className="accent-blue-600"
+                  />
+                  Was this lead referred directly by an Agent?
+                </label>
               </div>
             )}
 
