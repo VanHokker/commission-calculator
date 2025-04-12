@@ -143,6 +143,7 @@ export default function CommissionCalculator() {
   const handleCalculate = () => {
     setValidationError("");
     let referralFeeRate = 0;
+    let mentorReferralRate = 0;
 
     if (!contractPrice || contractPrice <= 0) {
       setValidationError("Please enter a valid contract price.");
@@ -175,24 +176,26 @@ export default function CommissionCalculator() {
     
     if (leadSource === "Zillow.com") {
       const qualifyForZillowFee = withinTwoYearsZillow && firstOrSecondZillowTransaction;
-      referralFeeRate = qualifyForZillowFee
+      leadSourceReferralRate = qualifyForZillowFee
         ? referralFees["Zillow.com"](contractPrice, location)
         : referralFees["SOI"];
     } else if (leadSource === "OpCity") {
-      referralFeeRate = referralFees["OpCity"](contractPrice, usedBuyerCashRewards);
+      leadSourceReferralRate = referralFees["OpCity"](contractPrice, usedBuyerCashRewards);
     } else if (leadSource === "OpenDoor (LWOD)") {
-      referralFeeRate = referralFees["OpenDoor (LWOD)"](contractPrice, isSellerLWOD, parseCommission(), isBuyerLWOD);
+      leadSourceReferralRate = referralFees["OpenDoor (LWOD)"](contractPrice, isSellerLWOD, parseCommission(), isBuyerLWOD);
     } else {
       const feeLogic = referralFees[leadSource];
-      referralFeeRate = typeof feeLogic === "function"
+      leadSourceReferralRate = typeof feeLogic === "function"
         ? feeLogic(contractPrice)
         : feeLogic;
-    } if (yearsWithCompany === "1" && mentorFeeDue) {
-      referralFeeRate += 0.10;
     }
-
+    
+    if (yearsWithCompany === "1" && mentorFeeDue) {
+      mentorReferralRate = 0.10;
+    }
+    const totalReferralRate = leadSourceReferralRate + mentorReferralRate;
     const totalCommission = parseCommission();
-    const afterReferral = totalCommission * (1 - referralFeeRate);
+    const afterReferral = totalCommission * (1 - totalReferralRate);
     const fmlsFee = location === "Atlanta" ? contractPrice * 0.0012 : 0;
 
     let agentSplit = 0.5;
@@ -216,7 +219,8 @@ export default function CommissionCalculator() {
 
     setResult({
       totalCommission,
-      referralFeeRate,
+      leadSourceReferralRate,
+      mentorReferralRate,
       afterReferral,
       agentGross,
       kwCommission,
@@ -588,30 +592,38 @@ export default function CommissionCalculator() {
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
             <h2 className="text-xl font-bold text-blue-900 mb-4">Your Commission Summary</h2>
+            
             <p><strong>Total Commission:</strong> {currencyFormatter.format(result.totalCommission)}</p>
+
             <p>
-              <strong>Referral Fee (%):</strong>{" "}
-              {(result.referralFeeRate * 100).toFixed(1)}%
+              <strong>Referral Fee (% - Lead Source):</strong>{" "}
+              {(result.leadSourceReferralRate * 100).toFixed(1)}%
               {leadSource === "OpenDoor (LWOD)" && isSellerLWOD && (
                 <span className="text-sm text-gray-600 ml-2">(1.25% of GCI)</span>
               )}
             </p>
+
+            {mentorFeeDue && (
+              <p>
+                <strong>Mentor Referral (10%):</strong>{" "}
+                {currencyFormatter.format(result.totalCommission * result.mentorReferralRate)}
+              </p>
+            )}
+
             <p><strong>After Referral:</strong> {currencyFormatter.format(result.afterReferral)}</p>
+
             {location === "Atlanta" && (
               <p><strong>FMLS Fee (0.12%):</strong> {currencyFormatter.format(result.fmlsFee)}</p>
             )}
+
             <p><strong>Team/Agent Split:</strong> {result.splitLabel}</p>
             <p><strong>Agent Gross:</strong> {currencyFormatter.format(result.agentGross)}</p>
             <p><strong>KW Commission:</strong> {currencyFormatter.format(result.kwCommission)}</p>
             <p><strong>KW Royalty:</strong> {currencyFormatter.format(result.kwRoyalty)}</p>
+
             <p className="text-lg font-bold text-green-700 mt-4">
               Net Income: {currencyFormatter.format(result.netIncome)}
             </p>
-            {mentorFeeDue && (
-              <p>
-                <strong>Mentor Referral (10%):</strong> {currencyFormatter.format(result.totalCommission * 0.1)}
-              </p>
-            )}
 
             <div className="mt-4">
               <label className="inline-flex items-center gap-2 text-sm font-medium text-blue-900">
