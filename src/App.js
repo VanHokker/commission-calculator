@@ -645,7 +645,7 @@ export default function CommissionCalculator() {
               </>
             )}
             </div>
-          </div>; {/* ✅ Close the right column */}     
+          </div> {/* ✅ Close the right column */}     
         <button
           onClick={handleCalculate}
           ref={(el) => (inputRefs.current[10] = el)}
@@ -653,7 +653,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 7.9.5</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 7.9.6</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
