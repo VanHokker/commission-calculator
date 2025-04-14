@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 
 export default function CommissionCalculator() {
   const [location, setLocation] = useState("");
@@ -28,6 +28,28 @@ export default function CommissionCalculator() {
   const [volumeInput, setVolumeInput] = useState("");
   const [originalKwCap, setOriginalKwCap] = useState(5000);
   const [originalKwRoyalty, setOriginalKwRoyalty] = useState(3000);
+
+  const roundToNearestHundredThousand = (value) => {
+    return Math.round(value / 100000) * 100000;
+  };
+  
+  const kwCapVolumeMilestone = useMemo(() => {
+    const GCI = 0.0275;
+    const referralCut = 0.75;
+    const agentSplit = 0.5;
+    const kwCommissionRate = 0.3;
+    const rawValue = originalKwCap / (GCI * referralCut * agentSplit * kwCommissionRate);
+    return roundToNearestHundredThousand(rawValue);
+  }, [originalKwCap]);
+  
+  const kwRoyaltyVolumeMilestone = useMemo(() => {
+    const GCI = 0.0275;
+    const referralCut = 0.75;
+    const agentSplit = 0.5;
+    const royaltyRate = 0.06;
+    const rawValue = originalKwRoyalty / (GCI * referralCut * agentSplit * royaltyRate);
+    return roundToNearestHundredThousand(rawValue);
+  }, [originalKwRoyalty]);
 
   const updateCapDefaults = (office) => {
     const capMap = {
@@ -664,7 +686,7 @@ export default function CommissionCalculator() {
                   <p className="text-sm text-gray-500 mt-1">
                     To reach your KW Brokerage cap, you'll need to close roughly{" "}
                     <span className="font-semibold">
-                      {currencyFormatter.format(originalKwCap / (0.0275 * 0.75 * 0.5 * 0.3))}
+                    <span className="font-semibold">{currencyFormatter.format(kwCapVolumeMilestone)}</span>
                     </span>{" "}
                     in volume this year.
                   </p>
@@ -688,7 +710,7 @@ export default function CommissionCalculator() {
                   <p className="text-sm text-gray-500 mt-1">
                   To reach your KW Royalty cap and be considered a "Capper", you'll need to close roughly{" "}
                   <span className="font-semibold">
-                    {currencyFormatter.format(originalKwRoyalty / (0.0275 * 0.75 * 0.5 * 0.06))}
+                  <span className="font-semibold">{currencyFormatter.format(kwRoyaltyVolumeMilestone)}</span>
                   </span>{" "}
                   in volume this year.
                 </p>
