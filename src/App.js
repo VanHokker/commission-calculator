@@ -678,21 +678,22 @@ export default function CommissionCalculator() {
                       <span>KW Cap</span>
                       <span>{currencyFormatter.format(originalKwCap - kwCapRemaining)} / {currencyFormatter.format(originalKwCap)}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative">
-                      {/* Current progress */}
+                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative flex">
+                      {/* Filled progress so far */}
                       <div
-                        className="bg-blue-600 h-4 absolute top-0 left-0 transition-all"
+                        className="bg-blue-600 h-4 transition-all"
                         style={{
                           width: `${Math.min(100, ((originalKwCap - kwCapRemaining) / originalKwCap) * 100)}%`
                         }}
                       />
-                      {/* This deal's contribution */}
+
+                      {/* This deal’s contribution (lighter shade) */}
                       <div
-                        className="bg-blue-300 h-4 absolute top-0 left-0 transition-all"
+                        className="bg-blue-300 h-4 transition-all"
                         style={{
                           width: `${Math.min(
-                            100,
-                            ((originalKwCap - kwCapRemaining + kwCapThisDeal) / originalKwCap) * 100
+                            100 - ((originalKwCap - kwCapRemaining) / originalKwCap) * 100,
+                            (kwCapThisDeal / originalKwCap) * 100
                           )}%`
                         }}
                       />
@@ -714,21 +715,19 @@ export default function CommissionCalculator() {
                       <span>KW Royalty</span>
                       <span>{currencyFormatter.format(originalKwRoyalty - kwRoyaltyRemaining)} / {currencyFormatter.format(originalKwRoyalty)}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative">
-                      {/* Current */}
+                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative flex">
                       <div
-                        className="bg-green-500 h-4 absolute top-0 left-0 transition-all"
+                        className="bg-green-500 h-4 transition-all"
                         style={{
                           width: `${Math.min(100, ((originalKwRoyalty - kwRoyaltyRemaining) / originalKwRoyalty) * 100)}%`
                         }}
                       />
-                      {/* This deal */}
                       <div
-                        className="bg-green-300 h-4 absolute top-0 left-0 transition-all"
+                        className="bg-green-300 h-4 transition-all"
                         style={{
                           width: `${Math.min(
-                            100,
-                            ((originalKwRoyalty - kwRoyaltyRemaining + kwRoyaltyThisDeal) / originalKwRoyalty) * 100
+                            100 - ((originalKwRoyalty - kwRoyaltyRemaining) / originalKwRoyalty) * 100,
+                            (kwRoyaltyThisDeal / originalKwRoyalty) * 100
                           )}%`
                         }}
                       />
@@ -755,7 +754,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 8.1.2</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 8.1.3</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
