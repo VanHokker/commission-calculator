@@ -28,6 +28,8 @@ export default function CommissionCalculator() {
   const [volumeInput, setVolumeInput] = useState("");
   const [originalKwCap, setOriginalKwCap] = useState(5000);
   const [originalKwRoyalty, setOriginalKwRoyalty] = useState(3000);
+  const [kwCapThisDeal, setKwCapThisDeal] = useState(0);
+  const [kwRoyaltyThisDeal, setKwRoyaltyThisDeal] = useState(0);
 
   const roundToNearestHundredThousand = (value) => {
     return Math.round(value / 100000) * 100000;
@@ -256,6 +258,10 @@ export default function CommissionCalculator() {
     const kwCommission = hasCapped ? 0 : Math.min(agentGross * 0.3, kwCapRemaining);
     const kwRoyalty = hasCapped ? 0 : Math.min(agentGross * 0.06, kwRoyaltyRemaining);
     const netIncome = agentGross - kwCommission - kwRoyalty - fmlsFee;
+    const kwCapPotential = hasCapped ? 0 : agentGross * 0.3;
+    const kwRoyaltyPotential = hasCapped ? 0 : agentGross * 0.06;
+    setKwCapThisDeal(kwCapPotential);
+    setKwRoyaltyThisDeal(kwRoyaltyPotential);
 
     setResult({
       totalCommission,
@@ -672,11 +678,22 @@ export default function CommissionCalculator() {
                       <span>KW Cap</span>
                       <span>{currencyFormatter.format(originalKwCap - kwCapRemaining)} / {currencyFormatter.format(originalKwCap)}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative">
+                      {/* Current progress */}
                       <div
-                        className="bg-blue-600 h-4 transition-all"
+                        className="bg-blue-600 h-4 absolute top-0 left-0 transition-all"
                         style={{
                           width: `${Math.min(100, ((originalKwCap - kwCapRemaining) / originalKwCap) * 100)}%`
+                        }}
+                      />
+                      {/* This deal's contribution */}
+                      <div
+                        className="bg-blue-300 h-4 absolute top-0 left-0 transition-all"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            ((originalKwCap - kwCapRemaining + kwCapThisDeal) / originalKwCap) * 100
+                          )}%`
                         }}
                       />
                     </div>
@@ -697,11 +714,22 @@ export default function CommissionCalculator() {
                       <span>KW Royalty</span>
                       <span>{currencyFormatter.format(originalKwRoyalty - kwRoyaltyRemaining)} / {currencyFormatter.format(originalKwRoyalty)}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative">
+                      {/* Current */}
                       <div
-                        className="bg-green-500 h-4 transition-all"
+                        className="bg-green-500 h-4 absolute top-0 left-0 transition-all"
                         style={{
                           width: `${Math.min(100, ((originalKwRoyalty - kwRoyaltyRemaining) / originalKwRoyalty) * 100)}%`
+                        }}
+                      />
+                      {/* This deal */}
+                      <div
+                        className="bg-green-300 h-4 absolute top-0 left-0 transition-all"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            ((originalKwRoyalty - kwRoyaltyRemaining + kwRoyaltyThisDeal) / originalKwRoyalty) * 100
+                          )}%`
                         }}
                       />
                     </div>
@@ -727,7 +755,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 8.1.0</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 8.1.2</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
@@ -779,6 +807,17 @@ export default function CommissionCalculator() {
                   Suggested amount to set aside (20%): {currencyFormatter.format(result.netIncome * 0.2)}
                 </p>
               )}
+
+              {(originalKwCap - kwCapRemaining + kwCapThisDeal >= originalKwCap) &&
+              (originalKwRoyalty - kwRoyaltyRemaining + kwRoyaltyThisDeal >= originalKwRoyalty) ? (
+                <p className="mt-4 text-green-700 font-semibold">
+                  🎉 Congratulations! You are a KW Capper this year!
+                </p>
+              ) : (originalKwCap - kwCapRemaining + kwCapThisDeal >= originalKwCap) ? (
+                <p className="mt-4 text-green-700 font-semibold">
+                  🎉 Congratulations! If this deal closes then you would have successfully capped with your Brokerage for the year!
+                </p>
+              ) : null}
             </div>
           </div>
         )}
