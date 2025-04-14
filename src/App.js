@@ -256,13 +256,17 @@ export default function CommissionCalculator() {
   });
 
   const handlePriceChange = (e) => {
-    const raw = e.target.value.replace(/[^\d]/g, ""); // Keep only digits
-    setPriceInput(raw); // Store raw string like "3", "33", "333"
-    setContractPrice(Number(raw) * 1000); // Set actual numeric value
+    const raw = e.target.value.replace(/[^\d.]/g, "");
+    setContractPrice(Number(raw));
+    setPriceInput(e.target.value);
   };
 
   const handlePriceBlur = () => {
-    setPriceInput(priceInput); // no change needed unless you want to trim trailing zeros etc.
+    setPriceInput(
+      isNaN(contractPrice)
+        ? ""
+        : currencyFormatter.format(contractPrice)
+    );
   };
 
   const handleKwCapChange = (e) => {
@@ -316,17 +320,21 @@ export default function CommissionCalculator() {
             </div>
 
             <div>
-            <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
-            <input
-              ref={(el) => (inputRefs.current[1] = el)}
-              onKeyDown={(e) => handleEnterKey(e, 1)}
-              type="text"
-              value={priceInput ? currencyFormatter.format(parseInt(priceInput) * 1000) : ""}
-              onChange={handlePriceChange}
-              onBlur={handlePriceBlur}
-              className="w-full p-3 border rounded-xl shadow-sm"
-              placeholder="$0.00"
-            />
+              <label className="block font-medium text-blue-900 mb-1">Contract Price</label>
+              <input
+                ref={(el) => (inputRefs.current[1] = el)}
+                onKeyDown={(e) => handleEnterKey(e, 1)}
+                type="text"
+                value={priceInput}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/[^\d.]/g, "");
+                  setContractPrice(Number(raw));
+                  setPriceInput(e.target.value);
+                }}
+                onBlur={() => setPriceInput(isNaN(contractPrice) ? "" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(contractPrice))}
+                className="w-full p-3 border rounded-xl shadow-sm"
+                placeholder="$0.00"
+              />
             </div>
 
             <div>
@@ -597,33 +605,34 @@ export default function CommissionCalculator() {
                     placeholder="$0.00"
                     className="w-full p-3 border rounded-xl shadow-sm"
                     onChange={(e) => {
-                      const raw = e.target.value.replace(/[^\d]/g, "");
-                      const padded = raw ? (Number(raw) * 1000) : 0;
-                      setVolumeInput(currencyFormatter.format(padded));
-                    
+                      const raw = e.target.value.replace(/[^\d.]/g, "");
+                      setVolumeInput(raw ? "$" + Number(raw).toLocaleString() : "");
+
                       if (!raw) {
                         updateCapDefaults(location);
                         return;
                       }
-                    
-                      const estimatedGCI = padded * 0.0275;
+
+                      const rawVolume = Number(raw);
+                      const estimatedGCI = rawVolume * 0.0275;
                       const afterReferral = estimatedGCI * 0.75;
                       const agentGross = afterReferral * 0.5;
-                    
+
                       const estimatedCapPaid = agentGross * 0.3;
                       const estimatedRoyaltyPaid = agentGross * 0.06;
-                    
+
                       const newCapRemaining = Math.max(originalKwCap - estimatedCapPaid, 0);
                       const newRoyaltyRemaining = Math.max(originalKwRoyalty - estimatedRoyaltyPaid, 0);
-                    
+
                       setKwCapRemaining(newCapRemaining);
                       setKwRoyaltyRemaining(newRoyaltyRemaining);
+
                       setKwCapInput(currencyFormatter.format(newCapRemaining));
                       setKwRoyaltyInput(currencyFormatter.format(newRoyaltyRemaining));
                     }}
                     onBlur={() => {
                       const raw = volumeInput.replace(/[^\d.]/g, "");
-                      setVolumeInput(raw ? "$" + Number(raw * 1000).toLocaleString() : "");
+                      setVolumeInput(raw ? "$" + Number(raw).toLocaleString() : "");
                     }}
                   />
                   <p className="text-xs text-gray-500 mt-1 italic">
@@ -634,6 +643,7 @@ export default function CommissionCalculator() {
                   </p>
                  </div>
                 <div className="mt-4 space-y-4">
+
                   {/* KW Cap Progress */}
                   <div>
                     <div className="flex justify-between text-sm mb-1 text-blue-900 font-medium">
@@ -650,6 +660,15 @@ export default function CommissionCalculator() {
                     </div>
                   </div>
 
+                  {/* Cap Milestone Note */}
+                  <p className="text-sm text-gray-500 mt-1">
+                    To reach your KW Brokerage cap, you'll need to close roughly{" "}
+                    <span className="font-semibold">
+                      {currencyFormatter.format(originalKwCap / (0.0275 * 0.75 * 0.5 * 0.3))}
+                    </span>{" "}
+                    in volume this year.
+                  </p>
+
                   {/* KW Royalty Progress */}
                   <div>
                     <div className="flex justify-between text-sm mb-1 text-blue-900 font-medium">
@@ -665,6 +684,15 @@ export default function CommissionCalculator() {
                       />
                     </div>
                   </div>
+
+                  <p className="text-sm text-gray-500 mt-1">
+                  To reach your KW Royalty cap and be considered a "Capper", you'll need to close roughly{" "}
+                  <span className="font-semibold">
+                    {currencyFormatter.format(originalKwRoyalty / (0.0275 * 0.75 * 0.5 * 0.06))}
+                  </span>{" "}
+                  in volume this year.
+                </p>
+
                 </div>
               </>
             )}
@@ -677,7 +705,7 @@ export default function CommissionCalculator() {
         >
           Calculate
         </button>
-        <p className="text-sm text-gray-400 text-right mt-1">Version 8.0.4</p>
+        <p className="text-sm text-gray-400 text-right mt-1">Version 8.1.0</p>
 
         {result && (
           <div className="bg-gray-100 border border-blue-200 p-6 rounded-2xl shadow-inner mt-8">
